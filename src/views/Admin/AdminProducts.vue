@@ -1,3 +1,7 @@
 <template>
-  <h2>這是後台商品列表</h2>
+  <h2>商品</h2>
+  <ProductTable />
 </template>
+<script setup>
+import ProductTable from './ProductTable.vue'
+</script>
