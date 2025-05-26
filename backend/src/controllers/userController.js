@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const db = require('../configs/db');
+const jwt = require('jsonwebtoken');
 const { users } = require('../models/schema');
 const { eq } = require('drizzle-orm');
 
@@ -45,6 +46,40 @@ const register = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  console.log('📩 收到登入請求');
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: '請輸入 email 和密碼' });
+  }
+
+  try {
+    const user = await db.select().from(users).where(eq(users.email,email)).limit(1);
+    if (user.length === 0) {
+      return res.status(401).json({ error: '帳號或密碼錯誤' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user[0].password_hash);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: '帳號或密碼錯誤' });
+    }
+
+    const token = jwt.sign(
+      { id: user[0].id, email: user[0].email },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    res.status(200).json({ message: '登入成功', token });
+  } catch (err) {
+    console.error('登入失敗', err);
+    res.status(500).json({ error: '伺服器錯誤' });
+  }
+};
+
+
 module.exports = {
-  register
+  register,
+  login
 };
