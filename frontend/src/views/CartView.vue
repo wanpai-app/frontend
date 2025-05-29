@@ -10,7 +10,7 @@
           :alt="icon.alt"
           class="w-6 h-6 filter invert cursor-pointer"
         />
-        <span class="user-level font-medium">{{ userLevel }}</span>
+        <span class="user-level font-medium whitespace-nowrap">{{ userLevel }}</span>
         <img
           :src="iconLogoutSrc"
           alt="登出"
@@ -19,11 +19,11 @@
         />
       </div>
       <div class="flex items-center space-x-4">
-        <button class="p-2 hover:bg-gray-800 rounded">
+        <button class="p-2 hover:bg-gray-800 rounded cursor-pointer">
           <img
             src="@/assets/img_shopping_cart/search.svg?url"
             alt="搜尋"
-            class="w-6 h-6 filter invert"
+            class="w-8 h-8 filter invert"
           />
         </button>
       </div>
@@ -36,72 +36,72 @@
 
         <!-- 購物車列表 -->
         <div class="overflow-x-auto">
-          <table class="min-w-full">
-            <thead class="bg-gray-800 text-white">
-              <tr>
-                <th class="px-4 py-2 text-center">選擇</th>
-                <th class="px-4 py-2 text-left">品名</th>
-                <th class="px-4 py-2 text-center">數量</th>
-                <th class="px-4 py-2 text-center">單價</th>
-                <th class="px-4 py-2 text-center">刪除</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="item in cart.items" :key="item.id" class="border-b hover:bg-gray-50">
-                <!-- 選擇 -->
-                <td class="px-4 py-4 text-center">
-                  <input
-                    type="checkbox"
-                    v-model="selectedIds"
-                    :value="item.id"
-                    class="form-checkbox h-4 w-4 text-blue-600"
-                  />
-                </td>
-
-                <!-- 品名 + 圖片 -->
-                <td class="px-4 py-4 flex items-start space-x-4">
+          <DataTable
+            :value="cart.items"
+            :selection="selectedIds"
+            @selection-change="selectedIds = $event"
+            dataKey="id"
+            class="p-datatable-sm"
+            :pt="{
+              table: 'min-w-full',
+              thead: 'bg-surface-800 text-surface-0',
+              headerRow: 'border-b border-surface-700',
+              headerCell: 'px-4 py-2',
+              tbody: 'bg-surface-0',
+              bodyRow: 'border-b border-surface-200 hover:bg-surface-50',
+              bodyCell: 'px-4 py-4'
+            }"
+          >
+            <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+            
+            <Column field="title" header="品名">
+              <template #body="{ data }">
+                <div class="flex items-start space-x-4">
                   <img
-                    v-if="item.image"
-                    :src="item.image"
+                    v-if="data.image"
+                    :src="data.image"
                     alt=""
                     class="w-20 h-20 object-cover rounded"
                   />
                   <div class="flex-1">
-                    <div v-if="item.eta" class="text-sm text-gray-500 mb-1">
-                      預計 {{ item.eta }} 出貨
+                    <div v-if="data.eta" class="text-sm text-surface-500 mb-1">
+                      預計 {{ data.eta }} 出貨
                     </div>
-                    <div class="font-medium text-gray-800">{{ item.title }}</div>
+                    <div class="font-medium text-surface-800">{{ data.title }}</div>
                   </div>
-                </td>
+                </div>
+              </template>
+            </Column>
 
-                <!-- 數量 -->
-                <td class="px-4 py-4 text-center">
-                  <select
-                    v-model.number="item.qty"
-                    @change="updateQty(item.id, item.qty)"
-                    class="border rounded px-2 py-1"
-                  >
-                    <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
-                  </select>
-                </td>
+            <Column field="qty" header="數量">
+              <template #body="{ data }">
+                <select
+                  v-model.number="data.qty"
+                  @change="updateQty(data.id, data.qty)"
+                  class="border rounded px-2 py-1"
+                >
+                  <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
+                </select>
+              </template>
+            </Column>
 
-                <!-- 單價 -->
-                <td class="px-4 py-4 text-center text-gray-700">
-                  {{ formatCurrency(item.price) }}
-                </td>
+            <Column field="price" header="單價">
+              <template #body="{ data }">
+                {{ formatCurrency(data.price) }}
+              </template>
+            </Column>
 
-                <!-- 刪除 -->
-                <td class="px-4 py-4 text-center">
-                  <button
-                    @click="remove(item.id)"
-                    class="text-red-600 hover:text-red-800 text-2xl focus:outline-none"
-                  >
-                    <i class="pi pi-trash"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            <Column header="刪除">
+              <template #body="{ data }">
+                <button
+                  @click="remove(data.id)"
+                  class="text-red-600 hover:text-red-800 text-2xl focus:outline-none cursor-pointer"
+                >
+                  <i class="pi pi-trash"></i>
+                </button>
+              </template>
+            </Column>
+          </DataTable>
         </div>
 
         <!-- 已選項目與合計 -->
@@ -172,13 +172,18 @@
             </span>
           </div>
           <!-- 前往結帳 按鈕 -->
-          <div class="flex justify-end">
+          <div class="flex justify-end mt-4">
             <Button
               label="前往結帳"
               icon="pi pi-shopping-cart"
-              @click="calculateShipping"
-              pt:root:class="px-4 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white"
-              pt:icon:class="mr-2"
+              severity="primary"
+              size="large"
+              @click=""
+              :pt="{
+                root: 'bg-primary hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center cursor-pointer',
+                icon: 'mr-2 order-first',
+                label: 'text-base order-last'
+              }"
             />
           </div>
         </div>
@@ -191,6 +196,8 @@
 import { ref, reactive, toRefs, onMounted, computed } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import Button from '@/volt/Button.vue'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 
 import iconMail from '@/assets/img_shopping_cart/icon-mail.svg?url'
 import iconInfo from '@/assets/img_shopping_cart/icon-info.svg?url'
