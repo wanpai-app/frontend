@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import ProductCard from '@/components/ProductCard.vue'
 
-// 商品假資料 (也可以改成 props 傳進來)
+
 const products = ref([])
 for (let i = 1; i <= 60; i++) {
   products.value.push({
@@ -31,11 +31,12 @@ const productSection = ref(null)
 function goToPage(page) {
   if (page >= 1 && page <= totalPages.value) {
     currentPage.value = page
-
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
+    if (productSection.value) {
+      productSection.value.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
+    }
   }
 }
 </script>
