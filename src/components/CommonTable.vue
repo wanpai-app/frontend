@@ -52,7 +52,6 @@
               v-model:selection="selectedRows"
               :value="filteredData(tab.value)"
               removable-sort
-              pt:table="min-w-200"
               data-key="id"
               scrollable
               scroll-height="500px"
