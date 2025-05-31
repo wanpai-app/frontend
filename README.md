@@ -5,7 +5,7 @@
 
 ## 功能說明
 
-### 安裝步驟
+## 安裝步驟
 1. 克隆此 Repository 
 ```bash
 $ git clone https://github.com/wanpai-app/frontend.git
@@ -35,6 +35,8 @@ $ npm run dev
 - 彭芷儀 [GitHub](https://github.com/yura813)
  
 - 張馨云 [GitHub](https://github.com/kirua05)
+
+- 林欣雨 [GitHub](https://github.com/Raelin930)
 
 - 巫坤郁 [GitHub](https://github.com/kenyykd)
 
