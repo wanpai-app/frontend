@@ -1,27 +1,27 @@
 <script setup>
-import { ref } from 'vue'
-import CommonTable from '@/components/CommonTable.vue'
-import { fetchAllProducts } from 'src/api/admin/product'
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-const router = useRouter()
-const productTabs = ref([
-  { title: '全部', value: 'all' },
-  { title: '上架中', value: 'active' },
-  { title: '草稿', value: 'draft' },
-  { title: '典藏', value: 'archived' },
-])
-const productColumns = ref([
-  { field: 'name', header: '商品', style: 'width: 25%' },
-  { field: 'status', header: '狀態', style: 'width: 25%' },
-  { field: 'currentStock', header: '庫存數量', style: 'width: 25%' },
-])
+  import { ref } from 'vue'
+  import CommonTable from '@/components/CommonTable.vue'
+  import { fetchAllProducts } from '@/api/admin/product'
+  import { onMounted } from 'vue'
+  import { useRouter } from 'vue-router'
+  const router = useRouter()
+  const productTabs = ref([
+    { title: '全部', value: 'all' },
+    { title: '上架中', value: 'active' },
+    { title: '草稿', value: 'draft' },
+    { title: '典藏', value: 'archived' },
+  ])
+  const productColumns = ref([
+    { field: 'name', header: '商品', style: 'width: 25%' },
+    { field: 'status', header: '狀態', style: 'width: 25%' },
+    { field: 'currentStock', header: '庫存數量', style: 'width: 25%' },
+  ])
 
-const productValue = ref([])
-onMounted(async () => {
-  const res = await fetchAllProducts()
-  productValue.value = res
-})
+  const productValue = ref([])
+  onMounted(async () => {
+    const res = await fetchAllProducts()
+    productValue.value = res
+  })
 </script>
 
 <template>
