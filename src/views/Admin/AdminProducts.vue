@@ -40,8 +40,8 @@
     :tabs="productTabs"
     :columns="productColumns"
     :value="productValue"
-    :scrollable
-    :selectable
-    :scroll-height
+    scrollable
+    selectable
+    scroll-height="500px"
   />
 </template>
