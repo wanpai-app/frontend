@@ -161,7 +161,7 @@
           life: 3000,
         })
       }
-    } catch (error) {
+    } catch {
       toast.add({
         severity: 'error',
         summary: '警告',
