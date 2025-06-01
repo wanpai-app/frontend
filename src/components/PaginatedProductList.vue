@@ -1,108 +1,26 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { RouterLink } from 'vue-router'
-import Button from 'primevue/button'
-import ProductCard from '@/components/ProductCard.vue'
 import ProductCategoryFilter from '@/components/ProductCategoryFilter.vue'
 import ProductSearchBar from '@/components/ProductSearchBar.vue'
+import ProductCard from '@/components/ProductCard.vue'
+import { useProductList } from '@/composables/useProductList.js'
+import Button from 'primevue/button'
 
-function debounce(fn, delay = 300) {
-  let timer
-  return (...args) => {
-    clearTimeout(timer)
-    timer = setTimeout(() => fn(...args), delay)
-  }
-}
-
-// 商品資料、分類、狀態
-const products = ref([])
-const categories = ['模型', '週邊', '限量']
-const activeCategory = ref('全部')
-const currentPage = ref(1)
-const itemsPerPage = 20
-
-const rawKeyword = ref('')
-const keyword = ref('')
-
-// 處理搜尋字串
-const updateKeyword = debounce((val) => {
-  keyword.value = val
-  currentPage.value = 1
-}, 300)
-
-watch(rawKeyword, (val) => {
-  updateKeyword(val)
-})
-
-// 假資料
-for (let i = 1; i <= 60; i++) {
-  const category = categories[(i - 1) % categories.length]
-  products.value.push({
-    id: i,
-    name: `商品 ${i}`,
-    image: `/img/p${(i % 5) + 1}.jpg`,
-    price: 100 + i * 5,
-    category
-  })
-}
-products.value[10].name = '海賊王 公仔'
-
-const filteredProducts = computed(() => {
-  let result = products.value
-  if (activeCategory.value !== '全部') {
-    result = result.filter(products => products.category === activeCategory.value)
-  }
-  if (keyword.value.trim().length >= 2) {
-    result = result.filter(products =>
-      products.name.toLowerCase().includes(keyword.value.toLowerCase())
-    )
-  }
-  return result
-})
-
-const totalPages = computed(() =>
-  Math.max(1, Math.ceil(filteredProducts.value.length / itemsPerPage))
-)
-
-const paginatedProducts = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  return filteredProducts.value.slice(start, start + itemsPerPage)
-})
-
-const allCategories = ['全部', ...categories]
-const productSection = ref(null)
-
-function goToPage(page) {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page
-    productSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-}
-
-function handleCategoryClick(category) {
-  activeCategory.value = category
-  currentPage.value = 1
-}
-
-// 進階分頁功能
-const pageInput = ref('')
-function jumpToPage() {
-  const page = parseInt(pageInput.value, 10)
-  if (!isNaN(page)) {
-    goToPage(page)
-    pageInput.value = ''
-  }
-}
-const pageButtons = computed(() => {
-  const pages = []
-  const start = Math.max(1, currentPage.value - 2)
-  const end = Math.min(totalPages.value, currentPage.value + 2)
-  for (let i = start; i <= end; i++) {
-    pages.push(i)
-  }
-  return pages
-})
+const {
+  rawKeyword,
+  activeCategory,
+  allCategories,
+  paginatedProducts,
+  currentPage,
+  totalPages,
+  goToPage,
+  handleCategoryClick,
+  pageInput,
+  jumpToPage,
+  pageButtons,
+  productSection
+} = useProductList()
 </script>
+
 
 <template>
   <div class="p-6 max-w-screen-xl mx-auto">
