@@ -3,7 +3,10 @@
   import { useCartStore } from '@/stores/cart'
   import Button from '@/volt/Button.vue'
   import { testItems } from '@/components/CartItem.vue'
-
+  import axios from 'axios'
+  import { useToast } from 'primevue/usetoast'
+  import Toast from 'primevue/toast'
+  const toast = useToast()
   // Pinia 購物車狀態
   const cart = useCartStore()
 
@@ -91,9 +94,86 @@
     }
     calculateShipping()
   }
+
+  //結帳
+  async function checkout() {
+    if (selectedItems.value.length === 0) {
+      toast.add({
+        severity: 'error',
+        summary: '警告',
+        detail: '請選擇至少一項商品才能結帳！',
+        life: 3000,
+      })
+      return
+    }
+    const MerchantTradeNo = Date.now().toString()
+    const MerchantTradeDate = new Date()
+      .toLocaleString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+      })
+      .replace(/\//g, '/')
+      .replace(/ /g, ' ')
+
+    const itemNames = selectedItems.value.map((item) => item.title).join('#')
+    const tradeDesc = `購物車商品結帳: ${itemNames}`
+
+    const payload = {
+      MerchantTradeNo: MerchantTradeNo,
+      MerchantTradeDate: MerchantTradeDate,
+      TotalAmount: (selectedTotal.value + shipping.value).toString(),
+      TradeDesc: tradeDesc,
+      ItemName: itemNames,
+    }
+
+    try {
+      const response = await axios.post(
+        'http://localhost:3000/api/create-order',
+        payload
+      )
+
+      if (response.data && response.data.includes('<form id="_form_aiochk"')) {
+        const div = document.createElement('div')
+        div.innerHTML = response.data
+        document.body.appendChild(div)
+
+        const form = document.getElementById('_form_aiochk')
+        if (form) {
+          form.submit()
+        } else {
+          toast.add({
+            severity: 'error',
+            summary: '警告',
+            detail: '結帳失敗：無法找到綠界表單。',
+            life: 3000,
+          })
+        }
+      } else {
+        toast.add({
+          severity: 'error',
+          summary: '警告',
+          detail: '結帳失敗：後端回應格式不正確。',
+          life: 3000,
+        })
+      }
+    } catch (error) {
+      toast.add({
+        severity: 'error',
+        summary: '警告',
+        detail: '結帳失敗，請稍後再試。',
+        life: 3000,
+      })
+    }
+  }
 </script>
 
 <template>
+  <Toast />
   <div class="bg-black text-white min-h-screen flex flex-col">
     <main class="flex-1 px-4 py-6 bg-gray-100 text-black">
       <div class="container mx-auto p-4 bg-white rounded shadow">
