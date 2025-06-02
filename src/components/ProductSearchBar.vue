@@ -1,20 +1,47 @@
 <script setup>
-import InputText from 'primevue/inputtext'
+  import { computed } from 'vue'
+  import InputText from 'primevue/inputtext'
+  import Button from 'primevue/button'
 
-defineProps({
-  keyword: String
-})
+  const props = defineProps(['modelValue'])
+  const emit = defineEmits(['update:modelValue', 'submit'])
 
-const emit = defineEmits(['update:keyword'])
+  const modelValueProxy = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val),
+  })
+
+  function clearKeyword() {
+    emit('update:modelValue', '')
+    emit('submit')
+  }
 </script>
 
 <template>
-  <div class="flex justify-center mb-6">
+  <div
+    class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 my-4"
+  >
     <InputText
-      :modelValue="keyword"
-      @update:modelValue="val => emit('update:keyword', val)"
-      placeholder="輸入關鍵字搜尋商品"
-      class="w-full max-w-md py-2 px-4 border border-gray-300 rounded-md text-sm bg-white"
+      v-model="modelValueProxy"
+      placeholder="請輸入商品名稱..."
+      class="w-full sm:w-auto flex-1"
+      @keyup.enter="emit('submit')"
     />
+
+    <div class="flex gap-2">
+      <Button
+        label="搜尋"
+        icon="pi pi-search"
+        class="px-5"
+        @click="emit('submit')"
+      />
+      <Button
+        label="清除搜尋"
+        icon="pi pi-times"
+        severity="secondary"
+        class="px-5"
+        @click="clearKeyword"
+      />
+    </div>
   </div>
 </template>
