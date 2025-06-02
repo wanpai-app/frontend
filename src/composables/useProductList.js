@@ -1,34 +1,55 @@
 import { ref, computed, watch } from 'vue'
-
-// debounce 函式
-function debounce(fn, delay = 300) {
-  let timer
-  return (...args) => {
-    clearTimeout(timer)
-    timer = setTimeout(() => fn(...args), delay)
-  }
-}
+import { useRoute, useRouter } from 'vue-router'
 
 export function useProductList() {
-  const products = ref([])
+  const route = useRoute()
+  const router = useRouter()
+
   const categories = ['模型', '週邊', '限量']
-  const activeCategory = ref('全部')
-  const currentPage = ref(1)
+  const allCategories = ['全部', ...categories]
   const itemsPerPage = 20
 
-  const rawKeyword = ref('')
-  const keyword = ref('')
-
-  const updateKeyword = debounce((val) => {
-    keyword.value = val
-    currentPage.value = 1
-  }, 300)
-
-  watch(rawKeyword, (val) => {
-    updateKeyword(val)
+  // ✅ 狀態來自 URL
+  const activeCategory = computed({
+    get: () => route.query.category || '全部',
+    set: (val) => {
+      router.push({ query: { ...route.query, category: val, page: 1 } })
+    },
   })
 
-  // 假資料初始化
+  const keyword = computed(() => route.query.keyword || '')
+
+  const currentPage = computed({
+    get: () => parseInt(route.query.page, 10) || 1,
+    set: (val) => {
+      router.push({ query: { ...route.query, page: val } })
+    },
+  })
+
+  // ✅ 搜尋欄位輸入的暫存值
+  const inputKeyword = ref(route.query.keyword || '')
+
+  // ✅ 關鍵補強：當 URL keyword 改變時同步到輸入欄
+  watch(
+    () => route.query.keyword,
+    (val) => {
+      inputKeyword.value = val || ''
+    }
+  )
+
+  // ✅ 點搜尋按鈕 → 更新 URL query（觸發篩選）
+  function submitSearch() {
+    router.push({
+      query: {
+        ...route.query,
+        keyword: inputKeyword.value,
+        page: 1,
+      },
+    })
+  }
+
+  // ✅ 假資料初始化
+  const products = ref([])
   for (let i = 1; i <= 60; i++) {
     const category = categories[(i - 1) % categories.length]
     products.value.push({
@@ -36,17 +57,17 @@ export function useProductList() {
       name: `商品 ${i}`,
       image: `/img/p${(i % 5) + 1}.jpg`,
       price: 100 + i * 5,
-      category
+      category,
     })
   }
 
   const filteredProducts = computed(() => {
     let result = products.value
     if (activeCategory.value !== '全部') {
-      result = result.filter(p => p.category === activeCategory.value)
+      result = result.filter((p) => p.category === activeCategory.value)
     }
     if (keyword.value.trim().length >= 2) {
-      result = result.filter(p =>
+      result = result.filter((p) =>
         p.name.toLowerCase().includes(keyword.value.toLowerCase())
       )
     }
@@ -62,19 +83,20 @@ export function useProductList() {
     return filteredProducts.value.slice(start, start + itemsPerPage)
   })
 
-  const allCategories = ['全部', ...categories]
   const productSection = ref(null)
 
   function goToPage(page) {
     if (page >= 1 && page <= totalPages.value) {
       currentPage.value = page
-      productSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      productSection.value?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
     }
   }
 
   function handleCategoryClick(category) {
     activeCategory.value = category
-    currentPage.value = 1
   }
 
   const pageInput = ref('')
@@ -97,9 +119,9 @@ export function useProductList() {
   })
 
   return {
-    rawKeyword,
+    inputKeyword,
     keyword,
-    updateKeyword,
+    submitSearch,
     activeCategory,
     allCategories,
     products,
@@ -112,6 +134,6 @@ export function useProductList() {
     pageInput,
     jumpToPage,
     pageButtons,
-    productSection
+    productSection,
   }
 }

@@ -1,26 +1,28 @@
 <script setup>
-import ProductCategoryFilter from '@/components/ProductCategoryFilter.vue'
-import ProductSearchBar from '@/components/ProductSearchBar.vue'
-import ProductCard from '@/components/ProductCard.vue'
-import { useProductList } from '@/composables/useProductList.js'
-import Button from 'primevue/button'
+  import ProductCategoryFilter from '@/components/ProductCategoryFilter.vue'
+  import ProductSearchBar from '@/components/ProductSearchBar.vue'
+  import ProductCard from '@/components/ProductCard.vue'
+  import { useProductList } from '@/composables/useProductList.js'
+  import Button from 'primevue/button'
+  import { RouterLink } from 'vue-router'
 
-const {
-  rawKeyword,
-  activeCategory,
-  allCategories,
-  paginatedProducts,
-  currentPage,
-  totalPages,
-  goToPage,
-  handleCategoryClick,
-  pageInput,
-  jumpToPage,
-  pageButtons,
-  productSection
-} = useProductList()
+  const {
+    inputKeyword, // 用來綁搜尋欄
+    submitSearch, // 按下搜尋按鈕觸發
+    keyword, // 目前搜尋結果實際關鍵字（從 URL）
+    activeCategory,
+    allCategories,
+    paginatedProducts,
+    currentPage,
+    totalPages,
+    goToPage,
+    handleCategoryClick,
+    pageInput,
+    jumpToPage,
+    pageButtons,
+    productSection,
+  } = useProductList()
 </script>
-
 
 <template>
   <div class="p-6 max-w-screen-xl mx-auto">
@@ -32,10 +34,7 @@ const {
     />
 
     <!-- 搜尋 -->
-    <ProductSearchBar
-      :keyword="rawKeyword"
-      @update:keyword="val => rawKeyword = val"
-    />
+    <ProductSearchBar v-model="inputKeyword" @submit="submitSearch" />
 
     <!-- 商品列表 -->
     <div ref="productSection" class="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -50,34 +49,55 @@ const {
     </div>
 
     <!-- 查無商品 -->
-    <div v-if="paginatedProducts.length === 0" class="text-center text-gray-400 py-10">
+    <div
+      v-if="paginatedProducts.length === 0"
+      class="text-center text-gray-400 py-10"
+    >
       <i class="pi pi-info-circle text-xl mb-2"></i>
       <p>查無符合的商品</p>
     </div>
 
-    <!-- 進階分頁區 -->
-    <div class="flex flex-col md:flex-row justify-center items-center gap-4 py-6 text-sm">
+    <!-- 分頁 -->
+    <div
+      class="flex flex-col md:flex-row justify-center items-center gap-4 py-6 text-sm"
+    >
       <!-- 分頁按鈕 -->
       <div class="flex items-center gap-1">
-        <Button icon="pi pi-angle-double-left" @click="goToPage(1)" :disabled="currentPage === 1" />
-        <Button icon="pi pi-angle-left" @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" />
+        <Button
+          icon="pi pi-angle-double-left"
+          @click="goToPage(1)"
+          :disabled="currentPage === 1"
+        />
+        <Button
+          icon="pi pi-angle-left"
+          @click="goToPage(currentPage - 1)"
+          :disabled="currentPage === 1"
+        />
 
         <template v-for="page in pageButtons" :key="page">
           <Button
             :label="page.toString()"
             :class="{
               'bg-green-500 text-white': page === currentPage,
-              'bg-white text-black': page !== currentPage
+              'bg-white text-black': page !== currentPage,
             }"
             @click="goToPage(page)"
           />
         </template>
 
-        <Button icon="pi pi-angle-right" @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" />
-        <Button icon="pi pi-angle-double-right" @click="goToPage(totalPages)" :disabled="currentPage === totalPages" />
+        <Button
+          icon="pi pi-angle-right"
+          @click="goToPage(currentPage + 1)"
+          :disabled="currentPage === totalPages"
+        />
+        <Button
+          icon="pi pi-angle-double-right"
+          @click="goToPage(totalPages)"
+          :disabled="currentPage === totalPages"
+        />
       </div>
 
-      <!-- 前往頁碼 -->
+      <!-- 跳轉頁碼 -->
       <div class="flex items-center gap-2">
         <span>前往</span>
         <input
@@ -93,4 +113,3 @@ const {
     </div>
   </div>
 </template>
-
