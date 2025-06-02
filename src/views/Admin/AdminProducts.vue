@@ -1,8 +1,8 @@
 <script setup>
   import { ref } from 'vue'
   import CommonTable from '@/components/CommonTable.vue'
-  import { fetchAllProducts } from '@/api/admin/product'
-  import { onMounted } from 'vue'
+  // import { fetchAllProducts } from '@/api/admin/product'
+  // import { onMounted } from 'vue'
   import { useRouter } from 'vue-router'
   const router = useRouter()
   const productTabs = ref([
@@ -12,17 +12,29 @@
     { title: '典藏', value: 'archived' },
   ])
   const productColumns = ref([
-    { field: 'img', header: '商品圖', style: 'width: 25%' },
-    { field: 'name', header: '商品', style: 'width: 25%' },
-    { field: 'status', header: '狀態', style: 'width: 25%' },
-    { field: 'currentStock', header: '庫存數量', style: 'width: 25%' },
+    { field: 'img', header: '', style: 'width: 25%', sortable: false },
+    { field: 'name', header: '商品', style: 'width: 25%', sortable: true },
+    { field: 'status', header: '狀態', style: 'width: 25%', sortable: true },
+    {
+      field: 'currentStock',
+      header: '庫存數量',
+      style: 'width: 25%',
+      sortable: true,
+    },
   ])
 
-  const productValue = ref([])
-  onMounted(async () => {
-    const res = await fetchAllProducts()
-    productValue.value = res
-  })
+  const productValue = ref([
+    {
+      img: 'f230fh0g3',
+      name: '路卡力歐',
+      status: '上架中',
+      currentStock: 24,
+    },
+  ])
+  // onMounted(async () => {
+  //   const res = await fetchAllProducts()
+  //   productValue.value = res
+  // })
 </script>
 
 <template>

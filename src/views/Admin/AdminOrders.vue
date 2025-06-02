@@ -11,14 +11,44 @@
     { title: '已取消', value: 'cancelled' },
   ])
   const orderColumns = ref([
-    { field: 'orderNumber', header: '訂單編號', style: 'width: 12.5%' },
-    { field: 'date', header: '日期', style: 'width: 12.5%' },
-    { field: 'customer', header: '顧客', style: 'width: 12.5%' },
-    { field: 'payment', header: '付款狀態', style: 'width: 12.5%' },
-    { field: 'shipping', header: '物流狀態', style: 'width: 12.5%' },
-    { field: 'status', header: '訂單狀態', style: 'width: 12.5%' },
-    { field: 'total', header: '總金額', style: 'width: 12.5%' },
-    { field: 'quantity', header: '數量', style: 'width: 12.5%' },
+    {
+      field: 'orderNumber',
+      header: '訂單編號',
+      style: 'width: 12.5%',
+      sortable: true,
+    },
+    { field: 'date', header: '日期', style: 'width: 12.5%', sortable: true },
+    {
+      field: 'customer',
+      header: '顧客',
+      style: 'width: 12.5%',
+      sortable: false,
+    },
+    {
+      field: 'payment',
+      header: '付款狀態',
+      style: 'width: 12.5%',
+      sortable: true,
+    },
+    {
+      field: 'shipping',
+      header: '物流狀態',
+      style: 'width: 12.5%',
+      sortable: true,
+    },
+    {
+      field: 'status',
+      header: '訂單狀態',
+      style: 'width: 12.5%',
+      sortable: true,
+    },
+    { field: 'total', header: '總金額', style: 'width: 12.5%', sortable: true },
+    {
+      field: 'quantity',
+      header: '數量',
+      style: 'width: 12.5%',
+      sortable: true,
+    },
   ])
   // 假資料
   const orderValue = ref([

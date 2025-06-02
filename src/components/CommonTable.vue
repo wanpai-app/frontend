@@ -39,7 +39,7 @@
 
 <template>
   <div class="card">
-    <Tabs :value="tabs[1].value">
+    <Tabs :value="tabs[0].value">
       <TabList>
         <Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">
           {{ tab.title }}
@@ -65,7 +65,7 @@
                 :key="col.field"
                 :field="col.field"
                 :header="col.header"
-                sortable
+                :sortable="col.sortable"
                 :style="col.style"
               ></Column>
             </DataTable>
