@@ -1,82 +1,3 @@
-<template>
-  <div class="p-8 max-w-screen-xl mx-auto">
-    <div class="mb-6 flex  md:flex-row md:items-end gap-4 justify-end ml-auto">
-      <div class="flex flex-col w-full md:w-[230px]">
-        <label for="orderId" class="text-sm mb-1">訂單搜尋</label>
-        <InputText
-          id="orderId"
-          v-model="searchOrderId"
-          placeholder="輸入訂單編號"
-          class="w-full"
-        />
-      </div>
-
-    <div class="flex flex-col w-full md:w-[230px]">
-      <label for="dateRange" class="text-sm mb-1">日期</label>
-      <Select
-        id="dateRange"
-        v-model="selectedDateRange"
-        :options="dateOptions"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="全部時間"
-        class="w-full"
-      />
-    </div>
-  </div>
-
-    <h2 class="text-2xl mb-6">我的訂單</h2>
-    <DataTable
-      v-model:expandedRows="expandedRows"
-      :value="filteredOrders"
-      dataKey="id"
-      expandableRows
-      tableStyle="min-width: 60rem"
-      :pt="{ bodyRow: { class: 'h-16' } }"
-    >
-      <Column expander style="width: 3rem" />
-      <Column field="id" header="訂單編號" />
-      <Column field="date" header="訂購日期" />
-      <Column field="status" header="狀態" />
-      <Column field="total" header="總金額" />
-      <Column header="">
-        <template #body="slotProps">
-          <Button
-            label="查看詳情"
-            icon="pi pi-search"
-            @click="goToDetail(slotProps.data.id)"
-          />
-        </template>
-      </Column>
-
-      <template #expansion="slotProps">
-        <div class="p-4 bg-gray-50 rounded">
-          <h3 class="font-semibold mb-2">商品明細</h3>
-          <ul>
-            <li
-              v-for="item in slotProps.data.items"
-              :key="item.name"
-              class="flex items-center mb-2 gap-4"
-            >
-              <img
-                :src="item.image"
-                alt="product"
-                class="w-16 h-16 rounded border"
-              />
-              <div class="flex-1">
-                <div class="font-medium">{{ item.name }}</div>
-                <div class="text-sm text-gray-600">
-                  數量：{{ item.quantity }} ｜ 售價：{{ item.price }} 元
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </template>
-    </DataTable>
-  </div>
-</template>
-
 <script setup>
   import { ref, computed } from 'vue'
   import InputText from 'primevue/inputtext'
@@ -184,3 +105,84 @@
     // router.push(`/order/${id}`);
   }
 </script>
+
+
+<template>
+  <div class="p-8 max-w-screen-xl mx-auto">
+    <div class="mb-6 flex  md:flex-row md:items-end gap-4 justify-end ml-auto">
+      <div class="flex flex-col w-full md:w-[230px]">
+        <label for="orderId" class="text-sm mb-1">訂單搜尋</label>
+        <InputText
+          id="orderId"
+          v-model="searchOrderId"
+          placeholder="輸入訂單編號"
+          class="w-full"
+        />
+      </div>
+
+    <div class="flex flex-col w-full md:w-[230px]">
+      <label for="dateRange" class="text-sm mb-1">日期</label>
+      <Select
+        id="dateRange"
+        v-model="selectedDateRange"
+        :options="dateOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="全部時間"
+        class="w-full"
+      />
+    </div>
+  </div>
+
+    <h2 class="text-2xl mb-6">我的訂單</h2>
+    <DataTable
+      v-model:expandedRows="expandedRows"
+      :value="filteredOrders"
+      dataKey="id"
+      expandableRows
+      tableStyle="min-width: 60rem"
+      :pt="{ bodyRow: { class: 'h-16' } }"
+    >
+      <Column expander style="width: 3rem" />
+      <Column field="id" header="訂單編號" />
+      <Column field="date" header="訂購日期" />
+      <Column field="status" header="狀態" />
+      <Column field="total" header="總金額" />
+      <Column header="">
+        <template #body="slotProps">
+          <Button
+            label="查看詳情"
+            icon="pi pi-search"
+            @click="goToDetail(slotProps.data.id)"
+          />
+        </template>
+      </Column>
+
+      <template #expansion="slotProps">
+        <div class="p-4 bg-gray-50 rounded">
+          <h3 class="font-semibold mb-2">商品明細</h3>
+          <ul>
+            <li
+              v-for="item in slotProps.data.items"
+              :key="item.name"
+              class="flex items-center mb-2 gap-4"
+            >
+              <img
+                :src="item.image"
+                alt="product"
+                class="w-16 h-16 rounded border"
+              />
+              <div class="flex-1">
+                <div class="font-medium">{{ item.name }}</div>
+                <div class="text-sm text-gray-600">
+                  數量：{{ item.quantity }} ｜ 售價：{{ item.price }} 元
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </template>
+    </DataTable>
+  </div>
+</template>
+
