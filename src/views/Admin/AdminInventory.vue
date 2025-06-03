@@ -1,5 +1,6 @@
 <script setup>
   import CommonTable from '@/components/CommonTable.vue'
+  import InputText from 'primevue/inputtext'
   import { ref } from 'vue'
 
   const inventoryTabs = ref([{ title: '全部', value: 'all' }])
@@ -40,5 +41,13 @@
     scrollable
     selectable
     scroll-height="500px"
-  />
+  >
+    <template #body-reserved="{ data }">
+      <InputText v-model="data.reserved" class="w-full" />
+    </template>
+
+    <template #body-stockOnHand="{ data }">
+      <InputText v-model="data.stockOnHand" class="w-full" />
+    </template>
+  </CommonTable>
 </template>

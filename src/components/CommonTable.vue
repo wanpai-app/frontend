@@ -67,7 +67,13 @@
                 :header="col.header"
                 :sortable="col.sortable"
                 :style="col.style"
-              ></Column>
+              >
+                <template #body="slotProps">
+                  <slot :name="`body-${col.field}`" :data="slotProps.data">
+                    {{ slotProps.data[col.field] }}
+                  </slot>
+                </template>
+              </Column>
             </DataTable>
           </div>
         </TabPanel>
