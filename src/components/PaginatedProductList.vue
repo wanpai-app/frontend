@@ -1,26 +1,26 @@
 <script setup>
-  import ProductCategoryFilter from '@/components/ProductCategoryFilter.vue'
-  import ProductSearchBar from '@/components/ProductSearchBar.vue'
-  import ProductCard from '@/components/ProductCard.vue'
-  import { useProductList } from '@/composables/useProductList.js'
-  import Button from 'primevue/button'
-  import { RouterLink } from 'vue-router'
+import ProductCategoryFilter from '@/components/ProductCategoryFilter.vue'
+import ProductSearchBar from '@/components/ProductSearchBar.vue'
+import ProductCard from '@/components/ProductCard.vue'
+import { useProductList } from '@/composables/useProductList.js'
+import Button from 'primevue/button'
+import { RouterLink } from 'vue-router'
 
-  const {
-    inputKeyword,
-    submitSearch,
-    activeCategory,
-    allCategories,
-    paginatedProducts,
-    currentPage,
-    totalPages,
-    goToPage,
-    handleCategoryClick,
-    pageInput,
-    jumpToPage,
-    pageButtons,
-    productSection,
-  } = useProductList()
+const {
+  inputKeyword,
+  submitSearch,
+  activeCategory,
+  allCategories,
+  paginatedProducts,
+  currentPage,
+  totalPages,
+  goToPage,
+  handleCategoryClick,
+  pageInput,
+  jumpToPage,
+  pageButtons,
+  productSection,
+} = useProductList()
 </script>
 
 <template>
@@ -52,28 +52,29 @@
       <p>查無符合的商品</p>
     </div>
 
-    <div
-      class="flex flex-col md:flex-row justify-center items-center gap-4 py-6 text-sm"
-    >
+    <div class="flex flex-col md:flex-row justify-center items-center gap-4 py-6 text-sm">
       <div class="flex items-center gap-1">
         <Button
           icon="pi pi-angle-double-left"
           @click="goToPage(1)"
           :disabled="currentPage === 1"
+          text
         />
         <Button
           icon="pi pi-angle-left"
           @click="goToPage(currentPage - 1)"
           :disabled="currentPage === 1"
+          text
         />
 
         <template v-for="page in pageButtons" :key="page">
+          <span v-if="page === '...'" class="px-2">...</span>
           <Button
+            v-else
             :label="page.toString()"
-            :class="{
-              'bg-green-500 text-white': page === currentPage,
-              'bg-white text-black': page !== currentPage,
-            }"
+            :severity="page === currentPage ? 'primary' : undefined"
+            :outlined="page !== currentPage"
+            :class="page === currentPage ? 'font-bold' : ''"
             @click="goToPage(page)"
           />
         </template>
@@ -82,11 +83,13 @@
           icon="pi pi-angle-right"
           @click="goToPage(currentPage + 1)"
           :disabled="currentPage === totalPages"
+          text
         />
         <Button
           icon="pi pi-angle-double-right"
           @click="goToPage(totalPages)"
           :disabled="currentPage === totalPages"
+          text
         />
       </div>
 
