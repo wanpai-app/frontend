@@ -5,10 +5,9 @@ export function useProductList() {
   const route = useRoute()
   const router = useRouter()
 
-  const categories = ['模型', '週邊', '限量']
+  const categories = ['模型', '公仔', '立牌', '雕像', '抱枕', '徽章', '吊飾', 'T-shirt']
   const allCategories = ['全部', ...categories]
   const itemsPerPage = 20
-
 
   const activeCategory = computed({
     get: () => route.query.category || '全部',
@@ -26,9 +25,7 @@ export function useProductList() {
     },
   })
 
-
   const inputKeyword = ref(route.query.keyword || '')
-
 
   watch(
     () => route.query.keyword,
@@ -36,7 +33,6 @@ export function useProductList() {
       inputKeyword.value = val || ''
     }
   )
-
 
   function submitSearch() {
     router.push({
@@ -48,15 +44,27 @@ export function useProductList() {
     })
   }
 
- 
   const products = ref([])
+
+  const brands = ['鋼彈', '海賊王', '鬼滅之刃', 'Fate', 'EVA', '初音未來', '咒術迴戰', '七龍珠', 'Re:Zero', '火影忍者', '東京復仇者', '刀劍神域']
+  const items = ['模型', '公仔', '立牌', '雕像', '抱枕', '徽章', '吊飾', 'T-shirt']
+
   for (let i = 1; i <= 60; i++) {
-    const category = categories[(i - 1) % categories.length]
+    const brand = brands[i % brands.length]
+    const item = items[i % items.length]
+    const name = `${brand} ${item} #${i}`
+    const price = 299 + Math.floor(Math.random() * 500) 
+
+    let category = item
+    if (i % 10 === 0) {
+      category = '限量'
+    }
+
     products.value.push({
       id: i,
-      name: `商品 ${i}`,
-      image: `/img/p${(i % 5) + 1}.jpg`,
-      price: 100 + i * 5,
+      name,
+      image: '',
+      price,
       category,
     })
   }
