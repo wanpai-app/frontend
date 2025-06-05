@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 export function useProductList() {
@@ -17,7 +17,6 @@ export function useProductList() {
   })
 
   const keyword = computed(() => route.query.keyword || '')
-
   const currentPage = computed({
     get: () => parseInt(route.query.page, 10) || 1,
     set: (val) => {
@@ -26,11 +25,14 @@ export function useProductList() {
   })
 
   const inputKeyword = ref(route.query.keyword || '')
+  const productSection = ref(null)
 
   watch(
     () => route.query.keyword,
-    (val) => {
+    async (val) => {
       inputKeyword.value = val || ''
+      await nextTick()
+      productSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   )
 
@@ -45,7 +47,6 @@ export function useProductList() {
   }
 
   const products = ref([])
-
   const brands = ['鋼彈', '海賊王', '鬼滅之刃', 'Fate', 'EVA', '初音未來', '咒術迴戰', '七龍珠', 'Re:Zero', '火影忍者', '東京復仇者', '刀劍神域']
   const items = ['模型', '公仔', '立牌', '雕像', '抱枕', '徽章', '吊飾', 'T-shirt']
 
@@ -53,53 +54,29 @@ export function useProductList() {
     const brand = brands[i % brands.length]
     const item = items[i % items.length]
     const name = `${brand} ${item} #${i}`
-    const price = 299 + Math.floor(Math.random() * 500) 
-
+    const price = 299 + Math.floor(Math.random() * 500)
     let category = item
-    if (i % 10 === 0) {
-      category = '限量'
-    }
-
-    products.value.push({
-      id: i,
-      name,
-      image: '',
-      price,
-      category,
-    })
+    if (i % 10 === 0) category = '限量'
+    products.value.push({ id: i, name, image: '', price, category })
   }
 
   const filteredProducts = computed(() => {
     let result = products.value
-    if (activeCategory.value !== '全部') {
-      result = result.filter((p) => p.category === activeCategory.value)
-    }
-    if (keyword.value.trim().length >= 1) {
-      result = result.filter((p) =>
-        p.name.toLowerCase().includes(keyword.value.toLowerCase())
-      )
-    }
+    if (activeCategory.value !== '全部') result = result.filter(p => p.category === activeCategory.value)
+    if (keyword.value.trim().length >= 1) result = result.filter(p => p.name.toLowerCase().includes(keyword.value.toLowerCase()))
     return result
   })
 
-  const totalPages = computed(() =>
-    Math.max(1, Math.ceil(filteredProducts.value.length / itemsPerPage))
-  )
-
+  const totalPages = computed(() => Math.max(1, Math.ceil(filteredProducts.value.length / itemsPerPage)))
   const paginatedProducts = computed(() => {
     const start = (currentPage.value - 1) * itemsPerPage
     return filteredProducts.value.slice(start, start + itemsPerPage)
   })
 
-  const productSection = ref(null)
-
   function goToPage(page) {
     if (page >= 1 && page <= totalPages.value) {
       currentPage.value = page
-      productSection.value?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      })
+      productSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }
 
@@ -120,9 +97,7 @@ export function useProductList() {
     const pages = []
     const start = Math.max(1, currentPage.value - 2)
     const end = Math.min(totalPages.value, currentPage.value + 2)
-    for (let i = start; i <= end; i++) {
-      pages.push(i)
-    }
+    for (let i = start; i <= end; i++) pages.push(i)
     return pages
   })
 
