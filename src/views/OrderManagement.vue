@@ -5,7 +5,9 @@
   import DataTable from 'primevue/datatable'
   import Column from 'primevue/column'
   import Button from 'primevue/button'
+  import { useRouter } from 'vue-router'
 
+  const router = useRouter()
   const searchOrderId = ref('')
   const selectedDateRange = ref('')
   const expandedRows = ref([])
@@ -97,9 +99,8 @@
     })
   })
 
-  function goToDetail() {
-    // TODO: implement detail page navigation when order detail view is ready
-    // router.push(`/order/${id}`);
+  function goToDetail(id) {
+    router.push(`/orderdetail/${id}`)
   }
 </script>
 
