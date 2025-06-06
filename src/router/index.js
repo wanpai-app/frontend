@@ -68,7 +68,7 @@ const router = createRouter({
       path: '/orders',
       name: 'Orders',
       component: () => import('@/views/OrderManagement.vue')
-    }
+    },
     {
       path: '/loginsignup',
       name: 'loginsignup',
