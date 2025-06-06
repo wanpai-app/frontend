@@ -36,7 +36,9 @@ const menuItems = [
 
 
       <div class="hidden md:block">
-        <Button label="登入" severity="primary" size="small" />
+        <RouterLink to="/loginsignup">
+         <Button label="登入" severity="primary" size="small" />
+        </RouterLink>
       </div>
 
 
