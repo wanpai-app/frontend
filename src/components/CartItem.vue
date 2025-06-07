@@ -29,7 +29,7 @@
     />
     <div class="flex-1">
       <p class="font-medium text-gray-800 dark:text-gray-200">
-        {{ item.title }}
+        {{ item.name }}
       </p>
       <p class="text-sm text-gray-500 dark:text-gray-400">
         單價：{{ formatCurrency(item.price) }}
