@@ -1,5 +1,5 @@
 <script setup>
-  import { computed } from 'vue'
+  import { ref, computed } from 'vue'
   import InputText from 'primevue/inputtext'
   import Button from 'primevue/button'
 
@@ -10,6 +10,13 @@
     get: () => props.modelValue,
     set: (val) => emit('update:modelValue', val),
   })
+
+  const isComposing = ref(false)
+
+  function handleEnter() {
+    if (isComposing.value) return
+    emit('submit')
+  }
 
   function clearKeyword() {
     emit('update:modelValue', '')
@@ -25,7 +32,9 @@
       v-model="modelValueProxy"
       placeholder="請輸入商品名稱..."
       class="w-full sm:w-auto flex-1"
-      @keyup.enter="emit('submit')"
+      @keydown.enter="handleEnter"
+      @compositionstart="isComposing = true"
+      @compositionend="isComposing = false"
     />
 
     <div class="flex gap-2">

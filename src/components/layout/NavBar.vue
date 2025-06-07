@@ -1,6 +1,6 @@
 <script setup>
   import { ref } from 'vue'
-  import { RouterLink, useRoute } from 'vue-router'
+  import { RouterLink, useRoute, useRouter } from 'vue-router'
   import Drawer from 'primevue/drawer'
   import Button from 'primevue/button'
   import { useCartStore } from '@/stores/cart'
@@ -8,13 +8,15 @@
   const visible = ref(false)
   const cart = useCartStore()
   const route = useRoute()
+  const router = useRouter()
 
   const menuItems = [{ label: '後台首頁', to: '/admin' }]
 
+  // 點首頁時清除 query（包含 keyword）
   function handleHomeClick(e) {
     if (route.path === '/') {
       e.preventDefault()
-      window.location.reload()
+      router.push({ path: '/', query: {} })
     }
   }
 </script>
@@ -24,7 +26,6 @@
     <div
       class="max-w-screen-xl mx-auto flex items-center justify-between h-16 px-6"
     >
-      <!-- Logo -->
       <RouterLink
         to="/"
         class="text-xl font-bold text-emerald-600"
@@ -33,7 +34,6 @@
         Wanpai
       </RouterLink>
 
-      <!-- 導覽連結 (桌機) -->
       <nav class="hidden md:flex gap-8 text-sm text-gray-700 font-medium">
         <RouterLink
           v-for="item in menuItems"
@@ -46,7 +46,6 @@
         </RouterLink>
       </nav>
 
-      <!-- 桌機版購物車 + 登入 -->
       <div class="hidden md:flex items-center gap-4">
         <RouterLink to="/cart" class="relative">
           <div class="relative">
@@ -60,17 +59,15 @@
           </div>
         </RouterLink>
         <RouterLink to="/loginsignup">
-          <Button label="登入" severity="primary" size="small"></Button>
+          <Button label="登入" severity="primary" size="small" />
         </RouterLink>
       </div>
 
-      <!-- 手機版漢堡按鈕 -->
       <div class="md:hidden">
         <Button icon="pi pi-bars" text @click="visible = true" />
       </div>
     </div>
 
-    <!-- Drawer 手機選單 -->
     <Drawer v-model:visible="visible" position="right">
       <template #header>
         <div class="text-lg font-semibold">選單</div>
@@ -84,7 +81,7 @@
             () => {
               visible = false
               if (item.to === '/' && route.path === '/') {
-                window.location.reload()
+                router.push({ path: '/', query: {} })
               }
             }
           "
@@ -109,7 +106,7 @@
         </RouterLink>
 
         <RouterLink to="/loginsignup" @click="visible = false">
-          <Button label="登入" severity="primary" class="mt-4 w-full"></Button>
+          <Button label="登入" severity="primary" class="mt-4 w-full" />
         </RouterLink>
       </div>
     </Drawer>
