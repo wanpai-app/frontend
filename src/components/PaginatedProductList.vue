@@ -1,26 +1,26 @@
 <script setup>
-import ProductCategoryFilter from '@/components/ProductCategoryFilter.vue'
-import ProductSearchBar from '@/components/ProductSearchBar.vue'
-import ProductCard from '@/components/ProductCard.vue'
-import { useProductList } from '@/composables/useProductList.js'
-import Button from 'primevue/button'
-import { RouterLink } from 'vue-router'
+  import ProductCategoryFilter from '@/components/ProductCategoryFilter.vue'
+  import ProductSearchBar from '@/components/ProductSearchBar.vue'
+  import ProductCard from '@/components/ProductCard.vue'
+  import { useProductList } from '@/composables/useProductList.js'
+  import Button from 'primevue/button'
+  import { RouterLink } from 'vue-router'
 
-const {
-  inputKeyword,
-  submitSearch,
-  activeCategory,
-  allCategories,
-  paginatedProducts,
-  currentPage,
-  totalPages,
-  goToPage,
-  handleCategoryClick,
-  pageInput,
-  jumpToPage,
-  pageButtons,
-  productSection,
-} = useProductList()
+  const {
+    inputKeyword,
+    submitSearch,
+    activeCategory,
+    allCategories,
+    paginatedProducts,
+    currentPage,
+    totalPages,
+    goToPage,
+    handleCategoryClick,
+    pageInput,
+    jumpToPage,
+    pageButtons,
+    productSection,
+  } = useProductList()
 </script>
 
 <template>
@@ -31,7 +31,11 @@ const {
       @update:category="handleCategoryClick"
     />
 
-    <ProductSearchBar v-model="inputKeyword" @submit="submitSearch" />
+    <ProductSearchBar
+      v-model="inputKeyword"
+      @submit="submitSearch"
+      @reset="resetSearch"
+    />
 
     <div ref="productSection" class="grid grid-cols-2 md:grid-cols-4 gap-6">
       <RouterLink
@@ -52,7 +56,9 @@ const {
       <p>查無符合的商品</p>
     </div>
 
-    <div class="flex flex-col md:flex-row justify-center items-center gap-4 py-6 text-sm">
+    <div
+      class="flex flex-col md:flex-row justify-center items-center gap-4 py-6 text-sm"
+    >
       <div class="flex items-center gap-1">
         <Button
           icon="pi pi-angle-double-left"

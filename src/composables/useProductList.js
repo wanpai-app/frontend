@@ -5,9 +5,22 @@ export function useProductList() {
   const route = useRoute()
   const router = useRouter()
 
-  const categories = ['模型', '公仔', '立牌', '雕像', '抱枕', '徽章', '吊飾', 'T-shirt']
+  const categories = [
+    '模型',
+    '公仔',
+    '立牌',
+    '雕像',
+    '抱枕',
+    '徽章',
+    '吊飾',
+    'T-shirt',
+  ]
   const allCategories = ['全部', ...categories]
   const itemsPerPage = 20
+
+  const inputKeyword = ref('')
+  const isComposing = ref(false)
+  const productSection = ref(null)
 
   const activeCategory = computed({
     get: () => route.query.category || '全部',
@@ -16,7 +29,6 @@ export function useProductList() {
     },
   })
 
-  const keyword = computed(() => route.query.keyword || '')
   const currentPage = computed({
     get: () => parseInt(route.query.page, 10) || 1,
     set: (val) => {
@@ -24,19 +36,15 @@ export function useProductList() {
     },
   })
 
-  const inputKeyword = ref(route.query.keyword || '')
-  const productSection = ref(null)
+  // ⭐ 初始化：帶入 keyword 到 input，但不做 computed
+  if (route.query.keyword) {
+    inputKeyword.value = route.query.keyword
+  }
 
-  watch(
-    () => route.query.keyword,
-    async (val) => {
-      inputKeyword.value = val || ''
-      await nextTick()
-      productSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  )
-
+  // ✅ submit 時才真的觸發搜尋，並滾動到商品區
   function submitSearch() {
+    if (isComposing.value) return
+
     router.push({
       query: {
         ...route.query,
@@ -44,11 +52,36 @@ export function useProductList() {
         page: 1,
       },
     })
+
+    nextTick(() => {
+      productSection.value?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    })
+  }
+
+  function resetSearch() {
+    inputKeyword.value = ''
+    router.push({ path: '/', query: {} })
   }
 
   const products = ref([])
-  const brands = ['鋼彈', '海賊王', '鬼滅之刃', 'Fate', 'EVA', '初音未來', '咒術迴戰', '七龍珠', 'Re:Zero', '火影忍者', '東京復仇者', '刀劍神域']
-  const items = ['模型', '公仔', '立牌', '雕像', '抱枕', '徽章', '吊飾', 'T-shirt']
+  const brands = [
+    '鋼彈',
+    '海賊王',
+    '鬼滅之刃',
+    'Fate',
+    'EVA',
+    '初音未來',
+    '咒術迴戰',
+    '七龍珠',
+    'Re:Zero',
+    '火影忍者',
+    '東京復仇者',
+    '刀劍神域',
+  ]
+  const items = categories
 
   for (let i = 1; i <= 60; i++) {
     const brand = brands[i % brands.length]
@@ -62,12 +95,21 @@ export function useProductList() {
 
   const filteredProducts = computed(() => {
     let result = products.value
-    if (activeCategory.value !== '全部') result = result.filter(p => p.category === activeCategory.value)
-    if (keyword.value.trim().length >= 1) result = result.filter(p => p.name.toLowerCase().includes(keyword.value.toLowerCase()))
+    if (activeCategory.value !== '全部') {
+      result = result.filter((p) => p.category === activeCategory.value)
+    }
+    if (inputKeyword.value.trim().length >= 1) {
+      result = result.filter((p) =>
+        p.name.toLowerCase().includes(inputKeyword.value.toLowerCase())
+      )
+    }
     return result
   })
 
-  const totalPages = computed(() => Math.max(1, Math.ceil(filteredProducts.value.length / itemsPerPage)))
+  const totalPages = computed(() =>
+    Math.max(1, Math.ceil(filteredProducts.value.length / itemsPerPage))
+  )
+
   const paginatedProducts = computed(() => {
     const start = (currentPage.value - 1) * itemsPerPage
     return filteredProducts.value.slice(start, start + itemsPerPage)
@@ -76,7 +118,10 @@ export function useProductList() {
   function goToPage(page) {
     if (page >= 1 && page <= totalPages.value) {
       currentPage.value = page
-      productSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      productSection.value?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
     }
   }
 
@@ -103,12 +148,10 @@ export function useProductList() {
 
   return {
     inputKeyword,
-    keyword,
     submitSearch,
+    resetSearch,
     activeCategory,
     allCategories,
-    products,
-    filteredProducts,
     paginatedProducts,
     currentPage,
     totalPages,
@@ -118,5 +161,6 @@ export function useProductList() {
     jumpToPage,
     pageButtons,
     productSection,
+    isComposing,
   }
 }
