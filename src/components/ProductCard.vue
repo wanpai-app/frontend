@@ -1,7 +1,18 @@
 <script setup>
-  defineProps({
-    product: Object,
-  })
+import { useCartStore } from '@/stores/cart'
+
+const cart = useCartStore()
+
+const props = defineProps({
+  product: Object,
+})
+
+function addToCart(e) {
+  e.preventDefault()
+  e.stopPropagation()
+  cart.add(props.product)
+  alert('已加入購物車！')
+}
 </script>
 
 <template>
@@ -21,9 +32,9 @@
       <p class="text-lg font-bold mt-2 text-black">${{ product.price }}</p>
     </div>
 
-    <button
-      class="absolute bottom-2 right-2 w-10 h-10 bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg"
-    >
+    <!-- 購物車 icon -->
+    <button class="absolute bottom-2 right-2 w-10 h-10 bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg"
+      @click="addToCart">
       <i class="pi pi-shopping-cart"></i>
     </button>
   </div>
