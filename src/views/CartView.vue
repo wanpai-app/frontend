@@ -6,12 +6,43 @@
   import { createEcpayOrder } from '@/api/createEcpayOrder'
   import { useToast } from 'primevue/usetoast'
   import Toast from 'primevue/toast'
+  import InputText from 'primevue/inputtext'
   const toast = useToast()
   // Pinia 購物車狀態
   const cart = useCartStore()
 
   // 選中的商品列表
   const selectedItems = ref([])
+  // 選中的商品數量
+  const showShippingDetails = ref(false)
+
+  const shippingForm = reactive({
+    recepientName: '',
+    recepientPhone: '',
+    shippingAddress: '',
+  })
+
+  //判斷名字不能為空
+  const isRecepientNameValid = computed(
+    () => shippingForm.recepientName.trim() !== ''
+  )
+  //手機號碼要照正確的格式
+  const isRecepientPhoneValid = computed(() => {
+    const cellphoneRegex = /^09\d{8}$/
+    return cellphoneRegex.test(shippingForm.recepientPhone)
+  })
+  //地址不能為空
+  const isShippingAddressValid = computed(
+    () => shippingForm.shippingAddress.trim() !== ''
+  )
+  //上面這些判斷都還沒生效，要加在最後的checkout事件監聽當中，上面這些有一項沒過就不會觸發打API和後續的動作
+  const isShippingFormValid = computed(() => {
+    return (
+      isRecepientNameValid.value &&
+      isRecepientPhoneValid.value &&
+      isShippingAddressValid.value
+    )
+  })
 
   // 計算選中項目數量和金額
   const selectedCount = computed(() => selectedItems.value.length)
@@ -94,19 +125,51 @@
     }
     calculateShipping()
   }
+  watch(
+    selectedItems,
+    (newVal) => {
+      if (newVal.length === 0) {
+        showShippingDetails.value = false
+        //關閉(收貨詳細資訊)清除底下input框輸入過的內容
+        shippingForm.recepientName,
+          shippingForm.recepientPhone,
+          (shippingForm.shippingAddress = '')
+      }
+    },
+    { deep: true }
+  )
 
   //結帳
   async function ecpayCheckout() {
-    if (selectedItems.value.length === 0) {
+    if (!isRecepientNameValid.value) {
       toast.add({
         severity: 'error',
-        summary: '警告',
-        detail: '請選擇至少一項商品才能結帳！',
+        summary: '輸入錯誤',
+        detail: '收件人姓名不能為空！',
         life: 3000,
       })
       return
     }
 
+    if (!isRecepientPhoneValid.value) {
+      toast.add({
+        severity: 'error',
+        summary: '輸入錯誤',
+        detail: '請輸入手機號並以09開頭的10位數字！',
+        life: 3000,
+      })
+      return
+    }
+
+    if (!isShippingAddressValid.value) {
+      toast.add({
+        severity: 'error',
+        summary: '輸入錯誤',
+        detail: '收件地址不能為空！',
+        life: 3000,
+      })
+      return
+    }
     const itemNames = selectedItems.value.map((item) => item.title).join('#')
     const tradeDesc = `購物車商品結帳: ${itemNames}`
 
@@ -118,11 +181,24 @@
 
     await createEcpayOrder(payload, toast)
   }
+
+  function contactDetails() {
+    if (selectedItems.value.length === 0) {
+      toast.add({
+        severity: 'error',
+        summary: '警告',
+        detail: '請選擇至少一項商品才能結帳！',
+        life: 3000,
+      })
+    } else {
+      return (showShippingDetails.value = true)
+    }
+  }
 </script>
 
 <template>
   <Toast />
-  <div class="bg-black text-white min-h-screen flex flex-col">
+  <div class="bg-black text-white flex flex-col">
     <main class="flex-1 px-4 py-6 bg-gray-100 text-black">
       <div class="container mx-auto p-4 bg-white rounded shadow">
         <h1 class="text-2xl font-bold mb-6 text-gray-800">我的購物車</h1>
@@ -226,11 +302,11 @@
           </div>
           <div class="flex justify-end mt-4">
             <Button
-              label="前往結帳"
+              label="輸入詳細資訊"
               icon="pi pi-shopping-cart"
               severity="primary"
               size="large"
-              @click="ecpayCheckout"
+              @click="contactDetails"
               :pt="{
                 root: 'bg-primary hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center cursor-pointer',
                 icon: 'mr-2 order-first',
@@ -238,6 +314,64 @@
               }"
             />
           </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- 收貨詳細資訊 -->
+  <div class="bg-black text-white flex flex-col" v-if="showShippingDetails">
+    <main class="flex-1 px-4 py-6 bg-gray-100 text-black">
+      <div class="container mx-auto p-4 bg-white rounded shadow">
+        <h1 class="text-2xl font-bold mb-6 text-gray-800">收貨詳細資訊</h1>
+        <!-- input框 -->
+        <div class="flex flex-col gap-2">
+          <label for="username" class="font-bold">姓名</label>
+          <InputText
+            id="username"
+            v-model="shippingForm.recepientName"
+            aria-describedby="username-help"
+            class="w-lg p-2 outline rounded-lg"
+            required=""
+          />
+          <label for="cellphone" class="font-bold">手機號碼</label>
+          <InputText
+            id="cellphone"
+            v-model="shippingForm.recepientPhone"
+            aria-describedby="cellphone-help"
+            class="w-lg p-2 outline rounded-lg mg-1"
+            required=""
+          />
+          <label for="address" class="font-bold">地址</label>
+          <InputText
+            id="address"
+            v-model="shippingForm.shippingAddress"
+            aria-describedby="address-help"
+            class="w-lg p-2 outline rounded-lg"
+            required=""
+          />
+        </div>
+        <!-- 總金額 -->
+        <div class="flex justify-between items-center pt-2 border-t mt-4">
+          <span class="font-semibold">總金額 (TWD)</span>
+          <span class="text-xl font-bold">
+            {{ formatCurrency(selectedTotal + shipping) }}
+          </span>
+        </div>
+        <!-- 按鈕 -->
+        <div class="flex justify-end mt-4">
+          <Button
+            label="跳轉頁面結帳"
+            icon="pi pi-shopping-cart"
+            severity="primary"
+            size="large"
+            @click="ecpayCheckout"
+            :pt="{
+              root: 'bg-primary hover:bg-primary-600 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center cursor-pointer',
+              icon: 'mr-2 order-first',
+              label: 'text-base order-last',
+            }"
+          />
         </div>
       </div>
     </main>
