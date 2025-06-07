@@ -1,19 +1,24 @@
 <script setup>
-  defineProps({
-    product: Object,
-  })
+import { useCartStore } from '@/stores/cart'
+
+const cart = useCartStore()
+
+const props = defineProps({
+  product: Object,
+})
+
+function addToCart(e) {
+  e.preventDefault()
+  e.stopPropagation()
+  cart.add(props.product)
+  alert('已加入購物車！')
+}
 </script>
 
 <template>
-  <div
-    class="bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition-all relative"
-  >
+  <div class="bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition-all relative">
     <!-- 商品圖片 -->
-    <img
-      :src="product.image"
-      alt="商品圖片"
-      class="w-full h-64 object-contain bg-white"
-    />
+    <img :src="product.image" alt="商品圖片" class="w-full h-64 object-contain bg-white" />
 
     <!-- 商品資訊 -->
     <div class="p-3">
@@ -24,9 +29,8 @@
     </div>
 
     <!-- 購物車 icon -->
-    <button
-      class="absolute bottom-2 right-2 w-10 h-10 bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg"
-    >
+    <button class="absolute bottom-2 right-2 w-10 h-10 bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg"
+      @click="addToCart">
       <i class="pi pi-shopping-cart"></i>
     </button>
   </div>
