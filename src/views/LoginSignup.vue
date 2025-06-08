@@ -1,5 +1,7 @@
 <script setup>
   import { ref } from 'vue'
+  import axios from 'axios'
+  import { useRouter } from 'vue-router'
   import Button from 'primevue/button'
 
   const isLogin = ref(true)
@@ -7,7 +9,10 @@
   const email = ref('')
   const password = ref('')
   const errorMessage = ref('')
+  const successMessage = ref('')
   const isPasswordVisible = ref(false)
+
+  const router = useRouter()
 
   const togglePasswordVisibility = () => {
     isPasswordVisible.value = !isPasswordVisible.value
@@ -17,8 +22,9 @@
     isLogin.value = !isLogin.value
   }
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     errorMessage.value = ''
+    successMessage.value = ''
 
     if (isLogin.value) {
       if (!email.value || !password.value) {
@@ -29,6 +35,40 @@
       if (!username.value || !email.value || !password.value) {
         errorMessage.value = '請填寫所有欄位'
         return
+      }
+    }
+
+    try {
+      const resp = await axios.post(
+        'http://localhost:3000/api/users/register',
+        {
+          username: username.value,
+          email: email.value,
+          password: password.value,
+        }
+      )
+
+      if (resp.status === 201) {
+        successMessage.value = '註冊成功，正在跳轉到登入頁面...'
+        setTimeout(() => {
+          successMessage.value = ''
+          password.value = ''
+          isLogin.value = true
+        }, 2000)
+      }
+    } catch (error) {
+      // 確保 error.response 物件存在並正確處理錯誤
+      if (error.response) {
+        // 如果有 response 物件，則是後端返回的錯誤
+        if (error.response.status === 409) {
+          errorMessage.value = '此 email 已被註冊'
+        } else {
+          errorMessage.value =
+            error.response.data.error || '註冊失敗，請稍後再試！'
+        }
+      } else {
+        // 網路錯誤等情況
+        errorMessage.value = '無法連接到伺服器，請檢查您的網路連接'
       }
     }
   }
@@ -43,6 +83,10 @@
 
       <div v-if="errorMessage" class="text-red-600 text-center mb-4">
         <p>{{ errorMessage }}</p>
+      </div>
+
+      <div v-if="successMessage" class="text-green-600 text-center mb-4">
+        <p>{{ successMessage }}</p>
       </div>
 
       <form @submit.prevent="onSubmit">
