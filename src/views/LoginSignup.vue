@@ -1,7 +1,10 @@
 <script setup>
   import { ref } from 'vue'
+  import { useRouter } from 'vue-router'
   import axios from 'axios'
   import Button from 'primevue/button'
+
+  const router = useRouter()
 
   const isLogin = ref(true)
   const username = ref('')
@@ -19,20 +22,50 @@
     isLogin.value = !isLogin.value
   }
 
-  const onSubmit = async () => {
-    errorMessage.value = ''
-    successMessage.value = ''
+  const login = async () => {
+    if (!email.value || !password.value) {
+      errorMessage.value = '請填寫所有欄位'
+      return
+    }
 
-    if (isLogin.value) {
-      if (!email.value || !password.value) {
-        errorMessage.value = '請填寫所有欄位'
-        return
+    try {
+      const resp = await axios.post('http://localhost:3000/api/users/login', {
+        email: email.value,
+        password: password.value,
+      })
+
+      if (resp.status === 200) {
+        successMessage.value = '登入成功，正在跳轉...'
+        localStorage.setItem('token', resp.data.token)
+        localStorage.setItem('role', resp.data.role)
+        setTimeout(() => {
+          if (resp.data.role === 'admin') {
+            router.push('/admin')
+          } else {
+            router.push('/')
+          }
+        }, 1500)
       }
-    } else {
-      if (!username.value || !email.value || !password.value) {
-        errorMessage.value = '請填寫所有欄位'
-        return
+    } catch (error) {
+      if (error.response?.status === 404) {
+        errorMessage.value = '查無此帳號，將跳轉註冊頁面...'
+        setTimeout(() => {
+          errorMessage.value = ''
+          password.value = ''
+          isLogin.value = false
+        }, 1500)
+      } else if (error.response?.status === 401) {
+        errorMessage.value = '密碼錯誤'
+      } else {
+        errorMessage.value = '登入失敗，請稍後再試'
       }
+    }
+  }
+
+  const register = async () => {
+    if (!username.value || !email.value || !password.value) {
+      errorMessage.value = '請填寫所有欄位'
+      return
     }
 
     try {
@@ -54,16 +87,21 @@
         }, 2000)
       }
     } catch (error) {
-      if (error.response) {
-        if (error.response.status === 409) {
-          errorMessage.value = '此 email 已被註冊'
-        } else {
-          errorMessage.value =
-            error.response.data.error || '註冊失敗，請稍後再試！'
-        }
+      if (error.response?.status === 409) {
+        errorMessage.value = '此 email 已被註冊'
       } else {
-        errorMessage.value = '無法連接到伺服器，請檢查您的網路連接'
+        errorMessage.value = '註冊失敗，請稍後再試'
       }
+    }
+  }
+
+  const onSubmit = () => {
+    errorMessage.value = ''
+    successMessage.value = ''
+    if (isLogin.value) {
+      login()
+    } else {
+      register()
     }
   }
 </script>
