@@ -41,13 +41,21 @@ export function useProductList() {
 
   function submitSearch() {
     const keyword = inputKeyword.value.trim()
+
+    const query = {
+      ...route.query,
+      keyword: keyword || undefined,
+    }
+
+    if (route.query.page && route.query.page !== '1') {
+      query.page = 1
+    } else {
+      delete query.page
+    }
+
     router.push({
       path: '/',
-      query: {
-        ...route.query,
-        keyword: keyword || undefined,
-        page: 1,
-      },
+      query,
     })
   }
 
