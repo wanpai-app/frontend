@@ -4,7 +4,9 @@
   import UploadFile from '@/components/UploadFile.vue'
   import AutoComplete from 'primevue/autocomplete'
   import Select from 'primevue/select'
-  import { createProduct, fetchProductById } from '@/api/admin/product'
+  import { createProduct, fetchProductById } from '@/api/product'
+  import { QuillEditor } from '@vueup/vue-quill'
+  import '@vueup/vue-quill/dist/vue-quill.snow.css'
   const route = useRoute()
   const mode = route.query.mode || 'edit' // 預設是 edit
   const productId = route.params.id || null
@@ -99,12 +101,12 @@
     </div>
     <div>
       <label class="font-bold mb-2 block" for="description">商品描述</label>
-      <textarea
-        v-model="form.description"
-        class="w-240 h-80 bg-surface-0 rounded-md border-surface-300 border focus:outline-none focus:ring-0 enabled:focus:border-primary px-3 py-2 transition-colors duration-200 resize-none"
-        name="description"
-        id="description"
-      ></textarea>
+      <QuillEditor
+        theme="snow"
+        toolbar="essential"
+        contentType="html"
+        v-model:content="form.description"
+      />
     </div>
 
     <div>
