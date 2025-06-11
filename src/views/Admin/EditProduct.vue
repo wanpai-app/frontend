@@ -34,6 +34,18 @@
     status: 'draft',
   })
 
+  const toolbarOptions = [
+    'bold',
+    'italic',
+    'underline',
+    'image',
+    'link',
+    { list: 'ordered' },
+    { list: 'bullet' },
+    { header: [1, 2, 3, 4, 5, 6, false] },
+    { color: [] },
+  ]
+
   const submit = async () => {
     if (!form.value.name) {
       alert('請輸入商品名稱')
@@ -102,10 +114,11 @@
     <div>
       <label class="font-bold mb-2 block" for="description">商品描述</label>
       <QuillEditor
-        theme="snow"
-        toolbar="essential"
-        contentType="html"
         v-model:content="form.description"
+        content-type="html"
+        :toolbar="toolbarOptions"
+        theme="snow"
+        style="height: 300px"
       />
     </div>
 
