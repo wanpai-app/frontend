@@ -9,7 +9,6 @@ import PrimeVue from 'primevue/config'
 import Aura from '@primeuix/themes/aura'
 import 'primeicons/primeicons.css'
 import ToastService from 'primevue/toastservice'
-// Toast component is controlled via the ToastService that needs to be installed as an application plugin.
 
 const app = createApp(App)
 
@@ -23,4 +22,16 @@ app.use(PrimeVue, {
 })
 app.use(ToastService)
 
+router.afterEach(() => {
+  document.body.style.overflow = 'auto'
+  document.documentElement.style.overflow = 'auto'
+
+  document.body.classList.remove('p-overflow-hidden')
+  document.documentElement.classList.remove('p-overflow-hidden')
+
+  const previewWrapper = document.querySelector('.p-image-preview-wrapper')
+  if (previewWrapper) {
+    previewWrapper.remove()
+  }
+})
 app.mount('#app')
