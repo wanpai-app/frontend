@@ -1,5 +1,6 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 
 export function useProductList() {
   const route = useRoute()
@@ -18,11 +19,6 @@ export function useProductList() {
   const allCategories = ['全部', ...categories]
   const itemsPerPage = 20
 
-  const productSection = ref(null)
-  const pageInput = ref('')
-  const inputKeyword = ref('')
-  const searchKeyword = computed(() => route.query.keyword || '')
-
   const activeCategory = computed({
     get: () => route.query.category || '全部',
     set: (val) => {
@@ -30,6 +26,7 @@ export function useProductList() {
     },
   })
 
+  const keyword = computed(() => route.query.keyword || '')
   const currentPage = computed({
     get: () => parseInt(route.query.page, 10) || 1,
     set: (val) => {
@@ -37,73 +34,56 @@ export function useProductList() {
     },
   })
 
-  inputKeyword.value = searchKeyword.value
+  const inputKeyword = ref(route.query.keyword || '')
+  const productSection = ref(null)
+
+  watch(
+    () => route.query.keyword,
+    async (val) => {
+      inputKeyword.value = val || ''
+      await nextTick()
+      productSection.value?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      })
+    }
+  )
 
   function submitSearch() {
-    const keyword = inputKeyword.value.trim()
-
-    const query = {
-      ...route.query,
-      keyword: keyword || undefined,
-    }
-
-    if (route.query.page && route.query.page !== '1') {
-      query.page = 1
-    } else {
-      delete query.page
-    }
-
     router.push({
-      path: '/',
-      query,
+      query: {
+        ...route.query,
+        keyword: inputKeyword.value,
+        page: 1,
+      },
     })
-  }
-
-  function resetSearch() {
-    inputKeyword.value = ''
-    router.push({ path: '/', query: {} })
   }
 
   const products = ref([])
 
-  const brands = [
-    '鋼彈',
-    '海賊王',
-    '鬼滅之刃',
-    'Fate',
-    'EVA',
-    '初音未來',
-    '咒術迴戰',
-    '七龍珠',
-    'Re:Zero',
-    '火影忍者',
-    '東京復仇者',
-    '刀劍神域',
-  ]
-
-  const items = categories
-  for (let i = 1; i <= 60; i++) {
-    const brand = brands[i % brands.length]
-    const item = items[i % items.length]
-    const name = `${brand} ${item} #${i}`
-    const price = 299 + Math.floor(Math.random() * 500)
-    let category = item
-    if (i % 10 === 0) category = '限量'
-    products.value.push({ id: i, name, image: '', price, category })
-  }
+  onMounted(async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_BASE_URL}/products`
+      )
+      products.value = res.data
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('獲取產品列表失敗:', err)
+      alert('產品載入失敗，請確認後端 API 是否正常，或稍後再試')
+    }
+  })
 
   const filteredProducts = computed(() => {
     let result = products.value
 
-    const keyword = searchKeyword.value.toLowerCase()
-
-    if (activeCategory.value !== '全部') {
+    if (activeCategory.value !== '全部')
       result = result.filter((p) => p.category === activeCategory.value)
-    }
 
-    if (keyword.length > 0) {
-      result = result.filter((p) => p.name.toLowerCase().includes(keyword))
-    }
+    if (keyword.value.trim().length >= 1)
+      result = result.filter((p) =>
+        p.name.toLowerCase().includes(keyword.value.toLowerCase())
+      )
 
     return result
   })
@@ -130,6 +110,7 @@ export function useProductList() {
     activeCategory.value = category
   }
 
+  const pageInput = ref('')
   function jumpToPage() {
     const page = parseInt(pageInput.value, 10)
     if (!isNaN(page)) {
@@ -139,19 +120,35 @@ export function useProductList() {
   }
 
   const pageButtons = computed(() => {
-    const pages = []
-    const start = Math.max(1, currentPage.value - 2)
-    const end = Math.min(totalPages.value, currentPage.value + 2)
-    for (let i = start; i <= end; i++) pages.push(i)
-    return pages
+    const total = totalPages.value
+    const current = currentPage.value
+    const buttons = []
+
+    if (total <= 5) {
+      for (let i = 1; i <= total; i++) {
+        buttons.push(i)
+      }
+    } else {
+      if (current <= 3) {
+        buttons.push(1, 2, 3, 4, '...', total)
+      } else if (current >= total - 2) {
+        buttons.push(1, '...', total - 3, total - 2, total - 1, total)
+      } else {
+        buttons.push(1, '...', current - 1, current, current + 1, '...', total)
+      }
+    }
+
+    return buttons
   })
 
   return {
     inputKeyword,
+    keyword,
     submitSearch,
-    resetSearch,
     activeCategory,
     allCategories,
+    products,
+    filteredProducts,
     paginatedProducts,
     currentPage,
     totalPages,

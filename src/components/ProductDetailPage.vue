@@ -5,7 +5,6 @@
 
   import Button from 'primevue/button'
   import InputNumber from 'primevue/inputnumber'
-  import Image from 'primevue/image'
 
   const route = useRoute()
   const product = ref({})

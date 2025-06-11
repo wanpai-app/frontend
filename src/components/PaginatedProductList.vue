@@ -24,7 +24,7 @@
 </script>
 
 <template>
-  <div class="p-6 max-w-screen-xl mx-auto">
+  <div class="p-6 max-w-screen-2xl mx-auto">
     <ProductCategoryFilter
       :categories="allCategories"
       :activeCategory="activeCategory"
@@ -37,7 +37,10 @@
       @clear="resetSearch"
     />
 
-    <div ref="productSection" class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div
+      ref="productSection"
+      class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6"
+    >
       <RouterLink
         v-for="item in paginatedProducts"
         :key="item.id"
@@ -72,7 +75,6 @@
           :disabled="currentPage === 1"
           text
         />
-
         <template v-for="page in pageButtons" :key="page">
           <span v-if="page === '...'" class="px-2">...</span>
           <Button
@@ -84,7 +86,6 @@
             @click="goToPage(page)"
           />
         </template>
-
         <Button
           icon="pi pi-angle-right"
           @click="goToPage(currentPage + 1)"
