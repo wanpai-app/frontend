@@ -59,38 +59,10 @@ export function useProductList() {
     })
   }
 
-<<<<<<< HEAD
   function resetSearch() {
     inputKeyword.value = ''
     router.push({ path: '/', query: {} })
   }
-=======
-  const products = ref([])
-  const brands = [
-    '鋼彈',
-    '海賊王',
-    '鬼滅之刃',
-    'Fate',
-    'EVA',
-    '初音未來',
-    '咒術迴戰',
-    '七龍珠',
-    'Re:Zero',
-    '火影忍者',
-    '東京復仇者',
-    '刀劍神域',
-  ]
-  const items = [
-    '模型',
-    '公仔',
-    '立牌',
-    '雕像',
-    '抱枕',
-    '徽章',
-    '吊飾',
-    'T-shirt',
-  ]
->>>>>>> 4fd57d7 (chore: format files with Prettier)
 
   const products = ref([])
 
@@ -122,7 +94,6 @@ export function useProductList() {
 
   const filteredProducts = computed(() => {
     let result = products.value
-<<<<<<< HEAD
 
     const keyword = searchKeyword.value.toLowerCase()
 
@@ -134,24 +105,12 @@ export function useProductList() {
       result = result.filter((p) => p.name.toLowerCase().includes(keyword))
     }
 
-=======
-    if (activeCategory.value !== '全部')
-      result = result.filter((p) => p.category === activeCategory.value)
-    if (keyword.value.trim().length >= 1)
-      result = result.filter((p) =>
-        p.name.toLowerCase().includes(keyword.value.toLowerCase())
-      )
->>>>>>> 4fd57d7 (chore: format files with Prettier)
     return result
   })
 
   const totalPages = computed(() =>
     Math.max(1, Math.ceil(filteredProducts.value.length / itemsPerPage))
   )
-<<<<<<< HEAD
-
-=======
->>>>>>> 4fd57d7 (chore: format files with Prettier)
   const paginatedProducts = computed(() => {
     const start = (currentPage.value - 1) * itemsPerPage
     return filteredProducts.value.slice(start, start + itemsPerPage)
