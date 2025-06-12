@@ -2,6 +2,7 @@
   import { ref, onMounted, nextTick } from 'vue'
   import { useRoute } from 'vue-router'
   import axios from 'axios'
+  import { useCartStore } from '@/stores/cart'
 
   import Button from 'primevue/button'
   import InputNumber from 'primevue/inputnumber'
@@ -11,6 +12,7 @@
   const product = ref({})
   const quantity = ref(1)
   const inputRef = ref(null)
+  const cart = useCartStore()
 
   onMounted(async () => {
     const id = route.params.id
@@ -37,6 +39,15 @@
     } catch {
       product.value.isFavorited = originalState
     }
+  }
+
+  function addToCart() {
+    if (!product.value.id) {
+      alert('商品資料尚未載入')
+      return
+    }
+    cart.add({ ...product.value, qty: quantity.value })
+    alert('已加入購物車！')
   }
 </script>
 
@@ -92,6 +103,7 @@
             label="加入購物車"
             icon="pi pi-shopping-cart"
             class="flex-1"
+            @click="addToCart"
           />
           <Button
             :label="product.isFavorited ? '取消收藏' : '收藏'"
