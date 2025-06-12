@@ -2,14 +2,11 @@
   import { ref, onMounted, nextTick } from 'vue'
   import { useRoute } from 'vue-router'
   import axios from 'axios'
-<<<<<<< HEAD
-  import Image from 'primevue/image'
-=======
   import { useCartStore } from '@/stores/cart'
 
->>>>>>> 3b3a78f (activate product detail page addToCart button)
   import Button from 'primevue/button'
   import InputNumber from 'primevue/inputnumber'
+  import Image from 'primevue/image'
 
   const route = useRoute()
   const product = ref({})
