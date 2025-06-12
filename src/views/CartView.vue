@@ -204,7 +204,6 @@ function toggleSelectItem(item, event) {
   }
   calculateShipping()
 }
-
 </script>
 
 <template>
