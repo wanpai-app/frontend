@@ -45,7 +45,7 @@
         read: item.read ?? false,
         expanded: false,
       }))
-    } catch (e) {
+    } catch {
       error.value = '通知載入失敗，請稍後再試'
     } finally {
       loading.value = false
