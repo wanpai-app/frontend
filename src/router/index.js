@@ -4,6 +4,7 @@ import CartView from '@/views/CartView.vue'
 import HomeView from '@/views/HomeView.vue'
 import AuthForm from '@/views/AuthForm.vue'
 import NotFound from '@/views/NotFound.vue'
+import UserProfile from '@/views/UserProfile.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -81,9 +82,15 @@ const router = createRouter({
       component: () => import('@/views/FavoritePage.vue'),
     },
     {
+      path: '/userprofile',
+      name: 'userprofile',
+      component: UserProfile,
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: NotFound,
+
     },
   ],
 })
