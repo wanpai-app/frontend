@@ -6,6 +6,7 @@ import {
   computed,
   watch,
   nextTick,
+  onMounted,
 } from 'vue'
 import { useCartStore } from '@/stores/cart'
 import Button from '@/volt/Button.vue'
@@ -63,8 +64,8 @@ const selectedCount = computed(() => selectedItems.value.length)
 const selectedTotal = computed(() => {
   if (!selectedItems.value || selectedItems.value.length === 0) return 0
   return selectedItems.value.reduce((sum, item) => {
-    const price = Number(item.price) || 0
-    const qty = Number(item.qty) || 0
+    const price = Number(item.priceAtAdd) || 0
+    const qty = Number(item.quantity) || 0
     return sum + price * qty
   }, 0)
 })
@@ -89,8 +90,9 @@ watch(
   { deep: true }
 )
 
-function updateQty(id, qty) {
-  cart.updateQty(id, qty)
+async function updateQty(id, qty) {
+  await cart.updateQty(id, qty)
+  selectedItems.value = [...cart.items]
 }
 
 function remove(id) {
@@ -162,7 +164,7 @@ async function ecpayCheckout() {
     })
     return
   }
-  const itemNames = selectedItems.value.map((item) => item.title).join('#')
+  const itemNames = selectedItems.value.map((item) => item.product.name).join('#')
   const tradeDesc = `購物車商品結帳: ${itemNames}`
 
   const payload = {
@@ -204,6 +206,11 @@ function toggleSelectItem(item, event) {
   }
   calculateShipping()
 }
+
+onMounted(() => {
+  cart.fetchCart()
+  selectedItems.value = [...cart.items]
+})
 </script>
 
 <template>
@@ -245,19 +252,19 @@ function toggleSelectItem(item, event) {
                         預計 {{ item.eta }} 出貨
                       </div>
                       <div class="font-medium text-gray-800">
-                        {{ item.name }}
+                        {{ item.product.name }}
                       </div>
                     </div>
                   </div>
                 </td>
                 <td class="px-4 py-4 text-center">
-                  <select v-model.number="item.qty" @change="updateQty(item.id, item.qty)"
+                  <select v-model.number="item.quantity" @change="updateQty(item.id, item.quantity)"
                     class="border rounded px-2 py-1">
                     <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
                   </select>
                 </td>
                 <td class="px-4 py-4 text-center">
-                  {{ formatCurrency(item.price) }}
+                  {{ formatCurrency(item.priceAtAdd) }}
                 </td>
                 <td class="px-4 py-4 text-center">
                   <button @click="remove(item.id)"

@@ -4,15 +4,19 @@
   import axios from 'axios'
   import Image from 'primevue/image'
   import { useCartStore } from '@/stores/cart'
+  import { useToast } from 'primevue/usetoast'
 
   import Button from 'primevue/button'
   import InputNumber from 'primevue/inputnumber'
+  import Image from 'primevue/image'
+  import Toast from 'primevue/toast'
 
   const route = useRoute()
   const product = ref({})
   const quantity = ref(1)
   const inputRef = ref(null)
   const cart = useCartStore()
+  const toast = useToast()
 
   onMounted(async () => {
     const id = route.params.id
@@ -43,15 +47,26 @@
 
   function addToCart() {
     if (!product.value.id) {
-      alert('商品資料尚未載入')
+      toast.add({
+        severity: 'error',
+        summary: '錯誤',
+        detail: '商品資料尚未載入',
+        life: 3000
+      })
       return
     }
     cart.add({ ...product.value, qty: quantity.value })
-    alert('已加入購物車！')
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: `已加入購物車 ${quantity.value} 個！`,
+      life: 3000
+    })
   }
 </script>
 
 <template>
+  <Toast />
   <div class="max-w-5xl mx-auto p-6">
     <div class="flex flex-col md:flex-row gap-8">
       <div class="flex-shrink-0 w-full md:w-1/2 text-center">

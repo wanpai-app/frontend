@@ -5,12 +5,14 @@
   import Button from 'primevue/button'
   import { useCartStore } from '@/stores/cart'
   import { useAuthStore } from '@/stores/auth'
+  import { useToast } from 'primevue/usetoast'
 
   const visible = ref(false)
   const cart = useCartStore()
   const route = useRoute()
   const router = useRouter()
   const authStore = useAuthStore()
+  const toast = useToast()
 
   const menuItems = [{ label: '後台首頁', to: '/admin' }]
 
@@ -28,6 +30,19 @@
     router.push('/authform')
   }
 
+  function handleCartClick() {
+    if (!authStore.isLoggedIn) {
+      toast.add({
+        severity: 'warn',
+        summary: '請先登入',
+        detail: '請先登入會員再查看購物車！',
+        life: 3000,
+        position: 'top-right'
+      })
+      return
+    }
+    router.push('/cart')
+  }
 </script>
 
 <template>
@@ -56,17 +71,15 @@
       </nav>
 
       <div class="hidden md:flex items-center gap-4">
-        <RouterLink to="/cart" class="relative">
-          <div class="relative">
-            <Button icon="pi pi-shopping-cart" text rounded />
-            <span
-              v-if="cart.items.length"
-              class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"
-            >
-              {{ cart.items.length }}
-            </span>
-          </div>
-        </RouterLink>
+        <div class="relative cursor-pointer" @click="handleCartClick">
+          <Button icon="pi pi-shopping-cart" text rounded />
+          <span
+            v-if="cart.items.length"
+            class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"
+          >
+            {{ cart.items.length }}
+          </span>
+        </div>
         <div class="hidden md:block">
         <RouterLink v-if="!authStore.isLoggedIn" to="/authform">
           <Button label="登入" severity="primary" size="small" />
@@ -74,8 +87,6 @@
         <Button v-else label="登出" severity="danger" size="small" @click="logout" />
       </div>
       </div>
-
-
 
       <div class="md:hidden">
         <Button icon="pi pi-bars" text @click="visible = true" />
@@ -104,10 +115,9 @@
           {{ item.label }}
         </RouterLink>
 
-        <RouterLink
-          to="/cart"
-          class="text-gray-800 hover:text-emerald-600 text-base font-medium flex items-center"
-          @click="visible = false"
+        <div
+          class="text-gray-800 hover:text-emerald-600 text-base font-medium flex items-center cursor-pointer"
+          @click="() => { visible = false; handleCartClick() }"
         >
           <i class="pi pi-shopping-cart mr-2"></i>
           購物車
@@ -117,7 +127,7 @@
           >
             {{ cart.items.length }}
           </span>
-        </RouterLink>
+        </div>
 
         <RouterLink to="/loginsignup" @click="visible = false">
           <Button label="登入" severity="primary" class="mt-4 w-full" />
