@@ -3,6 +3,7 @@
   import { RouterLink, useRoute, useRouter } from 'vue-router'
   import Drawer from 'primevue/drawer'
   import Button from 'primevue/button'
+  import Menu from 'primevue/menu'
   import { useCartStore } from '@/stores/cart'
   import { useAuthStore } from '@/stores/auth'
   import { onMounted } from 'vue'
@@ -17,6 +18,31 @@
   onMounted(notificationStore.fetch)
 
   const menuItems = [{ label: '後台首頁', to: '/admin' }]
+  const memberMenu = ref()
+
+  const memberMenuItems = ref([
+    {
+      label: '個人資料',
+      icon: 'pi pi-user',
+      command: () => {
+        router.push('/userprofile')
+      },
+    },
+    {
+      label: '訂單中心',
+      icon: 'pi pi-list',
+      command: () => {
+        router.push('/orders')
+      },
+    },
+    {
+      label: '收藏清單',
+      icon: 'pi pi-heart',
+      command: () => {
+        router.push('/favorites')
+      },
+    },
+  ])
 
   // 點首頁時清除 query（包含 keyword）
   function handleHomeClick(e) {
@@ -25,11 +51,16 @@
       router.push({ path: '/', query: {} })
     }
   }
+
   authStore.initAuth()
 
   const logout = () => {
     authStore.logout()
     router.push('/authform')
+  }
+
+  const toggleMemberMenu = (event) => {
+    memberMenu.value.toggle(event)
   }
 </script>
 
@@ -59,6 +90,17 @@
       </nav>
 
       <div class="hidden md:flex items-center gap-4">
+        <div v-if="authStore.isLoggedIn" class="hidden md:block relative">
+          <Button
+            icon="pi pi-user"
+            text
+            rounded
+            @click="toggleMemberMenu"
+            class="hover:bg-gray-100"
+            aria-label="會員選單"
+          />
+          <Menu ref="memberMenu" :model="memberMenuItems" popup class="w-48" />
+        </div>
         <RouterLink to="/cart" class="relative">
           <div class="relative">
             <Button icon="pi pi-shopping-cart" text rounded />
@@ -167,23 +209,46 @@
           ></span>
         </RouterLink>
 
-        <RouterLink to="/loginsignup" @click="visible = false">
-          <Button label="登入" severity="primary" class="mt-4 w-full" />
-        </RouterLink>
-        <RouterLink
-          v-if="!authStore.isLoggedIn"
-          to="/authform"
-          @click="visible = false"
-        >
-          <Button label="登入" severity="primary" class="mt-4 w-full" />
-        </RouterLink>
-        <Button
-          v-else
-          label="登出"
-          severity="danger"
-          class="mt-4"
-          @click="logout"
-        />
+        <div v-if="!authStore.isLoggedIn">
+          <RouterLink to="/authform" @click="visible = false">
+            <Button label="登入" severity="primary" class="mt-4 w-full" />
+          </RouterLink>
+        </div>
+        <div v-else class="mt-4 space-y-3">
+          <div>
+            <div class="text-sm text-gray-500 mb-3">會員功能</div>
+            <RouterLink
+              to="/userprofile"
+              @click="visible = false"
+              class="flex items-center text-gray-800 hover:text-emerald-600 text-base font-medium mb-3"
+            >
+              <i class="pi pi-user mr-2"></i>
+              個人資料
+            </RouterLink>
+            <RouterLink
+              to="/orders"
+              @click="visible = false"
+              class="flex items-center text-gray-800 hover:text-emerald-600 text-base font-medium mb-3"
+            >
+              <i class="pi pi-list mr-2"></i>
+              訂單中心
+            </RouterLink>
+            <RouterLink
+              to="/favorites"
+              @click="visible = false"
+              class="flex items-center text-gray-800 hover:text-emerald-600 text-base font-medium mb-3"
+            >
+              <i class="pi pi-heart mr-2"></i>
+              收藏清單
+            </RouterLink>
+          </div>
+          <Button
+            label="登出"
+            severity="danger"
+            class="w-full"
+            @click="logout"
+          />
+        </div>
       </div>
     </Drawer>
   </header>
