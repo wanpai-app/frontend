@@ -1,6 +1,5 @@
 <script setup>
   import { ref, onMounted } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
   import axios from 'axios'
   import InputText from 'primevue/inputtext'
   import { useToast } from 'primevue/usetoast'
@@ -28,7 +27,6 @@
       profile.value = response.data
       editProfile.value = { ...profile.value }
     } catch (error) {
-      console.error('無法取得用戶資料:', error)
       toast.add({
         severity: 'error',
         summary: '載入失敗',
@@ -90,11 +88,7 @@
         detail: '個人資料已成功更新！',
         life: 3000,
       })
-
-      console.log('更新用戶資料成功:', response.data)
     } catch (error) {
-      console.error('更新資料時發生錯誤，請稍後再試。', error)
-
       let errorMessage = '更新資料失敗，請稍後再試。'
       if (error.response?.status === 401) {
         errorMessage = '登入已過期，請重新登入。'
