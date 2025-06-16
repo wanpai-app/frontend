@@ -99,7 +99,12 @@
             class="hover:bg-gray-100"
             aria-label="會員選單"
           />
-          <Menu ref="memberMenu" :model="memberMenuItems" popup class="w-48" />
+          <Menu
+            ref="memberMenu"
+            :model="memberMenuItems"
+            popup
+            class="text-base"
+          />
         </div>
         <RouterLink to="/cart" class="relative">
           <div class="relative">
