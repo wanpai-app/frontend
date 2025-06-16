@@ -50,11 +50,13 @@
           imageClass="w-64 h-64 object-cover rounded mx-auto"
           preview
         />
-        <div class="text-sm text-gray-500 mt-2">1 / 3</div>
+        <div class="text-sm text-white mt-2">1 / 3</div>
       </div>
 
       <div class="flex flex-col justify-start w-full md:w-1/2 space-y-4">
-        <h1 class="text-2xl font-bold leading-snug">{{ product.name }}</h1>
+        <h1 class="text-2xl font-bold leading-snug text-white">
+          {{ product.name }}
+        </h1>
 
         <div class="text-xl">
           <span
@@ -65,7 +67,7 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <label for="quantity" class="text-gray-700">數量</label>
+          <label for="quantity" class="text-gray-200 text-xl">數量</label>
           <InputNumber
             v-model="quantity"
             :ref="inputRef"
@@ -102,8 +104,9 @@
       </div>
     </div>
 
-    <div class="mt-6">
-      <p class="text-gray-600" v-html="product.description" />
-    </div>
+    <div
+      class="mt-6 text-gray-300 text-lg leading-relaxed [&_*]:!text-gray-300 [&_*]:!bg-transparent"
+      v-html="product.description"
+    ></div>
   </div>
 </template>
