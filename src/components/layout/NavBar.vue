@@ -73,7 +73,11 @@
         class="text-xl font-bold text-emerald-600"
         @click="handleHomeClick"
       >
-        Wanpai
+        <img
+          src="@/assets/logo.png"
+          alt="Wanpai Logo"
+          class="h-40 w-auto object-contain"
+        />
       </RouterLink>
 
       <nav class="hidden md:flex gap-8 text-sm text-gray-700 font-medium">
