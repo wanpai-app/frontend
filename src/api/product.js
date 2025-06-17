@@ -1,7 +1,9 @@
 import axios from '@/utils/axiosInstance'
 
 const fetchAllProducts = async (status = 'all') => {
-  const res = await axios.get(`/products?status=${status}`)
+  const res = await axios.get('/admin/products', {
+    params: { status },
+  })
   return res.data
 }
 

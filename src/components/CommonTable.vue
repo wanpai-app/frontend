@@ -33,11 +33,13 @@
     scrollHeight: { type: String, default: '500px' },
     selectable: { type: Boolean, default: true },
   })
+
+  const emit = defineEmits(['tab-change'])
 </script>
 
 <template>
   <div class="card">
-    <Tabs v-model:value="activeTab">
+    <Tabs v-model:value="activeTab" @update:value="emit('tab-change', $event)">
       <TabList>
         <Tab v-for="tab in tabs" :key="tab.title" :value="tab.value">
           {{ tab.title }}
@@ -68,7 +70,11 @@
               >
                 <template #body="slotProps">
                   <slot :name="`body-${col.field}`" :data="slotProps.data">
-                    {{ slotProps.data[col.field] }}
+                    {{
+                      col.format
+                        ? col.format(slotProps.data[col.field])
+                        : slotProps.data[col.field]
+                    }}
                   </slot>
                 </template>
               </Column>

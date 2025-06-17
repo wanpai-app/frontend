@@ -4,12 +4,11 @@
   import { fetchAllProducts } from '@/api/product'
   import { onMounted } from 'vue'
   import { useRouter } from 'vue-router'
+  import { useToast } from 'primevue/usetoast'
+  import Toast from 'primevue/toast'
   const router = useRouter()
-  const statusTextMap = {
-    active: '上架中',
-    draft: '草稿',
-    archived: '典藏',
-  }
+  const toast = useToast()
+
   const productTabs = ref([
     { title: '全部', value: 'all' },
     { title: '上架中', value: 'active' },
@@ -19,7 +18,18 @@
   const productColumns = ref([
     { field: 'img', header: '', style: 'width: 25%', sortable: false },
     { field: 'name', header: '商品', style: 'width: 25%', sortable: true },
-    { field: 'status', header: '狀態', style: 'width: 25%', sortable: true },
+    {
+      field: 'status',
+      header: '狀態',
+      style: 'width: 25%',
+      sortable: true,
+      format: (val) =>
+        ({
+          active: '上架中',
+          draft: '草稿',
+          archived: '典藏',
+        })[val] || '未知',
+    },
     {
       field: 'stockOnHand',
       header: '庫存數量',
@@ -27,6 +37,22 @@
       sortable: true,
     },
   ])
+
+  const currentStatus = ref('all')
+  const handleTabChange = async (newStatus) => {
+    currentStatus.value = newStatus
+    try {
+      const res = await fetchAllProducts(newStatus)
+      productValue.value = res
+    } catch (error) {
+      toast.add({
+        severity: 'warn',
+        summary: '商品暫時無法載入',
+        detail: '請稍後再試',
+        life: 3000,
+      })
+    }
+  }
 
   const productValue = ref([])
   onMounted(async () => {
@@ -36,6 +62,7 @@
 </script>
 
 <template>
+  <Toast />
   <div class="flex justify-between items-center mr-8 mb-4">
     <h2 class="text-2xl">商品</h2>
     <div class="card flex justify-center">
@@ -57,13 +84,11 @@
       :tabs="productTabs"
       :columns="productColumns"
       :value="productValue"
+      @tab-change="handleTabChange"
       scrollable
       selectable
       scroll-height="500px"
     >
-      <template #body-status="{ data }">
-        {{ statusTextMap[data.status] || '未知' }}
-      </template>
       <template #body-name="{ data }">
         <a
           class="w-full underline text-primary cursor-pointer"
