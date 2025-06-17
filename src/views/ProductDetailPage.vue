@@ -8,7 +8,6 @@
 
   import Button from 'primevue/button'
   import InputNumber from 'primevue/inputnumber'
-  import Image from 'primevue/image'
   import Toast from 'primevue/toast'
 
   const route = useRoute()
