@@ -1,5 +1,4 @@
 <script setup>
-import Image from 'primevue/image'
 import { useCartStore } from '@/stores/cart'
 import { useToast } from 'primevue/usetoast'
 
