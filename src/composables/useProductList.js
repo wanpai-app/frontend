@@ -1,6 +1,6 @@
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import axios from '@/utils/axiosInstance'
 import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
 
 export function useProductList() {
   const route = useRoute()
@@ -63,9 +63,7 @@ export function useProductList() {
 
   onMounted(async () => {
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/products`
-      )
+      const res = await axios.get('/products')
       products.value = res.data
     } catch (err) {
       // eslint-disable-next-line no-console
