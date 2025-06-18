@@ -6,9 +6,8 @@
   import Column from 'primevue/column'
   import Button from 'primevue/button'
   import { useRouter } from 'vue-router'
-  import { useAuthStore } from '@/stores/auth'
-  import 'primeicons/primeicons.css'
-  import axios from 'axios'
+  import { fetchOrders } from '@/api/order'
+  import { calculateOrdersWithTotal } from '@/utils/order'
 
   const authStore = useAuthStore()
   const router = useRouter()
@@ -27,49 +26,32 @@
 
   const orders = ref([])
 
-  async function fetchOrders() {
-    if (!authStore.isLoggedIn) return
-
-    // 組成 filters
-    const params = {}
-    if (searchOrderId.value) params.id = searchOrderId.value
-    if (selectedDateRange.value) params.dateRange = selectedDateRange.value
-
-    // 根據 API 路徑調整
+  async function fetchOrdersAndSet() {
     try {
-      const res = await axios.get('/api/orders', { params })
-      orders.value = res.data
-    } catch (err) {
+      const filters = {}
+      if (searchOrderId.value) filters.orderNumber = searchOrderId.value
+      if (selectedDateRange.value) filters.dateRange = selectedDateRange.value
+      orders.value = await fetchOrders(filters)
+    } catch (error) {
+      console.error('取得訂單失敗', error)
       orders.value = []
-
-      console.error('取得訂單失敗', err)
     }
   }
 
-  // 監聽登入狀態
-  onMounted(() => {
-    if (authStore.isLoggedIn) fetchOrders()
-  })
+  onMounted(fetchOrdersAndSet)
+  watch([searchOrderId, selectedDateRange], fetchOrdersAndSet)
 
-  watch(
-    () => authStore.isLoggedIn,
-    (newVal) => {
-      if (newVal) fetchOrders()
-      else orders.value = []
-    }
-  )
+  const ordersWithTotal = computed(() => calculateOrdersWithTotal(orders.value))
 
-  // 監聽搜尋條件自動查詢
-  watch([searchOrderId, selectedDateRange], fetchOrders)
+  const filteredOrders = computed(() => {
+    if (!selectedDateRange.value) return ordersWithTotal.value
 
-  // 自動計算總金額
-  const ordersWithTotal = computed(() => {
-    return orders.value.map((order) => {
-      const total = order.items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      )
-      return { ...order, total }
+    const today = new Date()
+    return ordersWithTotal.value.filter((order) => {
+      const orderDate = new Date(order.date)
+      const diffTime = today - orderDate
+      const diffDays = diffTime / (1000 * 60 * 60 * 24)
+      return diffDays <= parseInt(selectedDateRange.value)
     })
   })
 
