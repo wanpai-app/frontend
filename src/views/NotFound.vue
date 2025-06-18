@@ -1,24 +1,30 @@
 <script setup>
-import { useRouter } from 'vue-router'
-import Button from 'primevue/button'
+  import { useRouter } from 'vue-router'
+  import Button from 'primevue/button'
 
-const router = useRouter()
+  const router = useRouter()
 
-const goHome = () => {
-  router.push('/')
-}
+  const goHome = () => {
+    router.push('/')
+  }
 
-const goBack = () => {
-  router.go(-1)
-}
+  const goBack = () => {
+    router.go(-1)
+  }
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-surface-50 to-surface-100 flex items-center justify-center px-4 py-8">
+  <div
+    class="min-h-screen bg-gradient-to-br from-surface-50 to-surface-100 flex items-center justify-center px-4 py-8"
+  >
     <div class="max-w-lg w-full text-center -mt-16">
-      <div class="bg-surface-0 rounded-xl shadow-lg border border-surface-200 p-6 md:p-8">
+      <div
+        class="bg-surface-0 rounded-xl shadow-lg border border-surface-200 p-6 md:p-8"
+      >
         <div class="mb-6">
-          <h1 class="text-6xl md:text-8xl font-bold text-primary-500 leading-none tracking-tight">
+          <h1
+            class="text-6xl md:text-8xl font-bold text-primary-500 leading-none tracking-tight"
+          >
             404
           </h1>
         </div>
@@ -54,9 +60,9 @@ const goBack = () => {
 </template>
 
 <style scoped>
-@media (max-width: 640px) {
-  .text-6xl {
-    font-size: 4rem;
+  @media (max-width: 640px) {
+    .text-6xl {
+      font-size: 4rem;
+    }
   }
-}
 </style>
