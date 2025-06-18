@@ -66,6 +66,20 @@
             </span>
           </div>
         </RouterLink>
+        <RouterLink
+          v-if="authStore.isLoggedIn"
+          to="/notifications"
+          class="relative flex items-center justify-center mr-2"
+          title="我的通知"
+        >
+          <Button
+            icon="pi pi-comment"
+            text
+            rounded
+            class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-emerald-600 hover:bg-gray-100 transition"
+            aria-label="通知"
+          />
+        </RouterLink>
         <div class="hidden md:block">
           <RouterLink v-if="!authStore.isLoggedIn" to="/authform">
             <Button label="登入" severity="primary" size="small" />
@@ -120,6 +134,21 @@
           >
             {{ cart.items.length }}
           </span>
+        </RouterLink>
+
+        <RouterLink
+          v-if="authStore.isLoggedIn"
+          to="/notifications"
+          class="relative flex items-center justify-center mr-2"
+          title="我的通知"
+        >
+          <Button
+            icon="pi pi-comment"
+            text
+            rounded
+            class="w-10 h-10 flex items-center justify-center text-gray-600 hover:text-emerald-600 hover:bg-gray-100 transition"
+            aria-label="通知"
+          />
         </RouterLink>
 
         <RouterLink to="/loginsignup" @click="visible = false">
