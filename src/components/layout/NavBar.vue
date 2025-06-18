@@ -27,7 +27,6 @@
     authStore.logout()
     router.push('/authform')
   }
-
 </script>
 
 <template>
@@ -68,14 +67,18 @@
           </div>
         </RouterLink>
         <div class="hidden md:block">
-        <RouterLink v-if="!authStore.isLoggedIn" to="/authform">
-          <Button label="登入" severity="primary" size="small" />
-        </RouterLink>
-        <Button v-else label="登出" severity="danger" size="small" @click="logout" />
+          <RouterLink v-if="!authStore.isLoggedIn" to="/authform">
+            <Button label="登入" severity="primary" size="small" />
+          </RouterLink>
+          <Button
+            v-else
+            label="登出"
+            severity="danger"
+            size="small"
+            @click="logout"
+          />
+        </div>
       </div>
-      </div>
-
-
 
       <div class="md:hidden">
         <Button icon="pi pi-bars" text @click="visible = true" />
@@ -122,10 +125,20 @@
         <RouterLink to="/loginsignup" @click="visible = false">
           <Button label="登入" severity="primary" class="mt-4 w-full" />
         </RouterLink>
-        <RouterLink v-if="!authStore.isLoggedIn" to="/authform" @click="visible = false">
+        <RouterLink
+          v-if="!authStore.isLoggedIn"
+          to="/authform"
+          @click="visible = false"
+        >
           <Button label="登入" severity="primary" class="mt-4 w-full" />
         </RouterLink>
-        <Button v-else label="登出" severity="danger" class="mt-4" @click="logout" />
+        <Button
+          v-else
+          label="登出"
+          severity="danger"
+          class="mt-4"
+          @click="logout"
+        />
       </div>
     </Drawer>
   </header>
