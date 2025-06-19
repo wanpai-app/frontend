@@ -8,6 +8,7 @@ import {
   nextTick,
   onMounted,
 } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCartStore } from '@/stores/cart'
 import Button from '@/volt/Button.vue'
 import { createEcpayOrder } from '@/api/createEcpayOrder'
@@ -17,6 +18,7 @@ import InputText from 'primevue/inputtext'
 const toast = useToast()
 // Pinia 購物車狀態
 const cart = useCartStore()
+const router = useRouter()
 
 // 選中的商品列表
 const selectedItems = ref([])
@@ -81,11 +83,17 @@ function calculateShipping() {
     selectedItems.value && selectedItems.value.length > 0 ? 100 : 0
 }
 
-// 監聽選中項目變化以更新運費
+// 監聽選中項目和購物車資料變化
 watch(
-  selectedItems,
-  () => {
+  [selectedItems, () => cart.items],
+  ([newSelectedItems, newCartItems]) => {
+    // 更新運費
     calculateShipping()
+    
+    // 如果 selectedItems 為空且購物車有商品，則全選
+    if (newSelectedItems.length === 0 && newCartItems.length > 0) {
+      selectedItems.value = [...newCartItems]
+    }
   },
   { deep: true }
 )
@@ -207,8 +215,13 @@ function toggleSelectItem(item, event) {
   calculateShipping()
 }
 
-onMounted(() => {
-  cart.fetchCart()
+// 跳轉到商品詳細頁
+function goToProductDetail(productId) {
+  router.push(`/products/${productId}`)
+}
+
+onMounted(async () => {
+  await cart.fetchCart()
   selectedItems.value = [...cart.items]
 })
 </script>
@@ -224,35 +237,51 @@ onMounted(() => {
           <table class="min-w-full">
             <thead class="bg-gray-800 text-white">
               <tr class="border-b border-gray-700">
-                <th class="px-4 py-2 w-12 text-center">
-                  <input type="checkbox"
-                    class="custom-checkbox w-6 h-6 bg-white border-gray-400 focus:ring-2 focus:ring-primary-500"
-                    :checked="selectedItems.length === cart.items.length &&
-                      cart.items.length > 0
-                      " @change="toggleSelectAll" />
+                <th class="px-4 py-2 w-12">
+                  <div class="flex items-center justify-center">
+                    <input type="checkbox"
+                      class="custom-checkbox w-6 h-6 bg-white border-gray-400 focus:ring-2 focus:ring-primary-500"
+                      :checked="selectedItems.length === cart.items.length &&
+                        cart.items.length > 0
+                        " @change="toggleSelectAll" />
+                  </div>
                 </th>
                 <th class="px-4 py-2 text-left">品名</th>
-                <th class="px-4 py-2 text-center">數量</th>
-                <th class="px-4 py-2 text-center">單價</th>
-                <th class="px-4 py-2 text-center">刪除</th>
+                <th class="px-4 py-2 text-center whitespace-nowrap">數量</th>
+                <th class="px-4 py-2 text-center whitespace-nowrap">單價</th>
+                <th class="px-4 py-2 text-center whitespace-nowrap">刪除</th>
               </tr>
             </thead>
             <tbody class="bg-white">
               <tr v-for="item in cart.items" :key="item.id" class="border-b border-gray-200 hover:bg-gray-50">
-                <td class="px-4 py-4 text-center">
-                  <input type="checkbox"
-                    class="custom-checkbox w-6 h-6 bg-white border-gray-400 focus:ring-2 focus:ring-primary-500"
-                    :checked="selectedItems.some((i) => i.id === item.id)" @change="toggleSelectItem(item, $event)" />
+                <td class="px-4 py-4">
+                  <div class="flex items-center justify-center">
+                    <input type="checkbox"
+                      class="custom-checkbox w-6 h-6 bg-white border-gray-400 focus:ring-2 focus:ring-primary-500"
+                      :checked="selectedItems.some((i) => i.id === item.id)"
+                      @change="toggleSelectItem(item, $event)" />
+                  </div>
                 </td>
                 <td class="px-4 py-4">
                   <div class="flex items-center space-x-4">
-                    <img v-if="item.image" :src="item.image" alt="" class="w-20 h-20 object-cover rounded" />
+                    <div class="min-w-20 min-h-20">
+                      <img v-if="item.product.coverImage"
+                           :src="item.product.coverImage" 
+                           :alt="item.product.name"
+                           class="w-20 h-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                           @click="goToProductDetail(item.productId)" />
+                    </div>
                     <div class="flex-1 flex flex-col justify-center">
                       <div v-if="item.eta" class="text-sm text-gray-500 mb-1">
                         預計 {{ item.eta }} 出貨
                       </div>
                       <div class="font-medium text-gray-800">
-                        {{ item.product.name }}
+                        <span 
+                          class="cursor-pointer text-gray-700 hover:text-slate-800 hover:bg-slate-100 transition-all duration-200 font-semibold px-2 py-1 rounded"
+                          @click="goToProductDetail(item.productId)"
+                        >
+                          {{ item.product.name }}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -266,11 +295,13 @@ onMounted(() => {
                 <td class="px-4 py-4 text-center">
                   {{ formatCurrency(item.priceAtAdd) }}
                 </td>
-                <td class="px-4 py-4 text-center">
-                  <button @click="remove(item.id)"
-                    class="text-red-600 hover:text-red-800 focus:outline-none cursor-pointer">
-                    <i class="pi pi-trash" style="font-size: 1.5rem"></i>
-                  </button>
+                <td class="px-4 py-4">
+                  <div class="flex items-center justify-center">
+                    <button @click="remove(item.id)"
+                      class="text-red-600 hover:text-red-800 focus:outline-none cursor-pointer inline-flex items-center">
+                      <i class="pi pi-trash" style="font-size: 1.5rem"></i>
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
