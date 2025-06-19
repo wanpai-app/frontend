@@ -23,7 +23,7 @@
       >
         <div class="mb-6">
           <h1
-            class="text-6xl md:text-8xl font-bold text-primary-500 leading-none tracking-tight"
+            class="text-4xl md:text-6xl lg:text-8xl font-bold text-primary-500 leading-none tracking-tight"
           >
             404
           </h1>
@@ -59,10 +59,4 @@
   </div>
 </template>
 
-<style scoped>
-  @media (max-width: 640px) {
-    .text-6xl {
-      font-size: 4rem;
-    }
-  }
-</style>
+<style scoped></style>
