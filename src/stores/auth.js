@@ -4,10 +4,21 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     isLoggedIn: false,
     token: null,
-    role: null
+    role: null,
+    showToast: null,
   }),
 
+  getters: {
+    isAdmin: (state) => state.role === 'admin',
+    isUser: (state) => state.role === 'user',
+    userRole: (state) => state.role,
+  },
+
   actions: {
+    setToastHandler(toastFn) {
+      this.showToast = toastFn
+    },
+    
     initAuth() {
       const token = localStorage.getItem('token')
       const role = localStorage.getItem('role')
