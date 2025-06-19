@@ -3,9 +3,21 @@
   import InputText from '@/volt/InputText.vue'
   import Menu from '@/volt/Menu.vue'
   import { ref } from 'vue'
+  import Button from 'primevue/button'
+  import { useAuthStore } from '@/stores/auth'
+
+  const authStore = useAuthStore()
   const route = useRoute()
   const router = useRouter()
   const search = ref('')
+
+  authStore.initAuth()
+
+  function logout() {
+    authStore.logout()
+    router.push('/authform')
+  }
+
   const items = ref([
     {
       label: '商品列表',
@@ -52,6 +64,9 @@
             root: 'w-72 text-gray-700 bg-white p-2 outline-none rounded-full shadow focus:ring-2 focus:ring-blue-300 transition',
           }"
         />
+        <div v-if="authStore.isLoggedIn">
+          <Button label="登出" severity="danger" size="small" @click="logout" />
+        </div>
       </div>
     </header>
 
