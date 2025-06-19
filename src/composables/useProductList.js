@@ -55,10 +55,9 @@ export function useProductList() {
       const res = await axios.get('/products')
       products.value = res.data
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('獲取產品列表失敗:', err)
       alert('產品載入失敗，請確認後端 API 是否正常，或稍後再試')
     }
+
     if (route.query.keyword && route.query.keyword.trim()) {
       await nextTick()
       productSection.value?.scrollIntoView({
@@ -71,13 +70,15 @@ export function useProductList() {
   const filteredProducts = computed(() => {
     let result = products.value
 
-    if (activeCategory.value !== '全部')
+    if (activeCategory.value !== '全部') {
       result = result.filter((p) => p.category === activeCategory.value)
+    }
 
-    if (keyword.value.trim().length >= 1)
+    if (keyword.value.trim().length >= 1) {
       result = result.filter((p) =>
         p.name.toLowerCase().includes(keyword.value.toLowerCase())
       )
+    }
 
     return result
   })
@@ -98,19 +99,6 @@ export function useProductList() {
         behavior: 'smooth',
         block: 'start',
       })
-    }
-  }
-
-  function handleCategoryClick(category) {
-    activeCategory.value = category
-  }
-
-  const pageInput = ref('')
-  function jumpToPage() {
-    const page = parseInt(pageInput.value, 10)
-    if (!isNaN(page)) {
-      goToPage(page)
-      pageInput.value = ''
     }
   }
 
@@ -146,9 +134,6 @@ export function useProductList() {
     currentPage,
     totalPages,
     goToPage,
-    handleCategoryClick,
-    pageInput,
-    jumpToPage,
     pageButtons,
     productSection,
   }
