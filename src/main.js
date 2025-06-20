@@ -11,6 +11,7 @@ import { definePreset } from '@primeuix/themes'
 import Aura from '@primeuix/themes/aura'
 import 'primeicons/primeicons.css'
 import ToastService from 'primevue/toastservice'
+import Toast from 'primevue/toast'
 
 const app = createApp(App)
 const MyPreset = definePreset(Aura, {
@@ -54,6 +55,7 @@ app.use(PrimeVue, {
   },
 })
 app.use(ToastService)
+app.component('Toast', Toast)
 
 const authStore = useAuthStore()
 authStore.initAuth()
