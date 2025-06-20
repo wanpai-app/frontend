@@ -18,7 +18,6 @@
       handleSearch()
     }
   }
-
 </script>
 
 <template>
