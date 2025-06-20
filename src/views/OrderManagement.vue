@@ -6,8 +6,8 @@
   import Column from 'primevue/column'
   import Button from 'primevue/button'
   import { useRouter } from 'vue-router'
-  import { fetchOrders } from '@/api/order'
-  import { calculateOrdersWithTotal } from '@/api/order'
+  import { fetchOrders } from '@/api/orders'
+  import { calculateOrdersWithTotal } from '@/api/orders'
   import { useAuthStore } from '@/stores/auth'
 
   const authStore = useAuthStore()
