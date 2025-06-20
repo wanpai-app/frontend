@@ -1,9 +1,19 @@
-// src/api/order.js
 import axios from 'axios'
+import { useAuthStore } from '@/stores/auth'
 
 // 查詢訂單列表（可帶條件）
+
 export async function fetchOrders(filters = {}) {
-  const res = await axios.get('/api/orders', { params: filters })
+  const authStore = useAuthStore()
+  const token = authStore.token
+
+  const res = await axios.get('/api/orders', {
+    params: filters,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
   return res.data
 }
 
@@ -38,7 +48,8 @@ export async function deleteOrder(orderId) {
 
 export function calculateOrdersWithTotal(orders) {
   return orders.map((order) => {
-    const total = order.items.reduce(
+    const items = order.items || [] // 如果沒有 items 就給空陣列
+    const total = items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     )
