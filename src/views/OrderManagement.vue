@@ -7,13 +7,15 @@
   import Button from 'primevue/button'
   import { useRouter } from 'vue-router'
   import { fetchOrders } from '@/api/order'
-  import { calculateOrdersWithTotal } from '@/utils/order'
+  import { calculateOrdersWithTotal } from '@/api/order'
+  import { useAuthStore } from '@/stores/auth'
 
   const authStore = useAuthStore()
   const router = useRouter()
   const searchOrderId = ref('')
   const selectedDateRange = ref('')
   const expandedRows = ref([])
+  const errorMsg = ref('')
 
   const dateOptions = [
     { label: '全部時間', value: '' },
@@ -32,8 +34,9 @@
       if (searchOrderId.value) filters.orderNumber = searchOrderId.value
       if (selectedDateRange.value) filters.dateRange = selectedDateRange.value
       orders.value = await fetchOrders(filters)
-    } catch (error) {
-      console.error('取得訂單失敗', error)
+      errorMsg.value = ''
+    } catch {
+      errorMsg.value = '無法取得訂單資料，請稍後再試。'
       orders.value = []
     }
   }
@@ -87,6 +90,9 @@
       </div>
     </div>
 
+    <div v-if="errorMsg" class="mb-4 px-4 py-2 text-red-700 rounded border">
+      {{ errorMsg }}
+    </div>
     <h2 class="text-2xl mb-6">我的訂單</h2>
     <DataTable
       v-model:expandedRows="expandedRows"
