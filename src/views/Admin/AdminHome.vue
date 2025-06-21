@@ -1,7 +1,10 @@
 <script setup>
+  import { RouterLink, useRoute, useRouter } from 'vue-router'
   import InputText from '@/volt/InputText.vue'
   import Menu from '@/volt/Menu.vue'
   import { ref } from 'vue'
+  const route = useRoute()
+  const router = useRouter()
   const search = ref('')
   const items = ref([
     {
@@ -20,6 +23,12 @@
       route: '/admin/inventory',
     },
   ])
+  function handleHomeClick(e) {
+    if (route.path === '/') {
+      e.preventDefault()
+      router.push({ path: '/', query: {} })
+    }
+  }
 </script>
 
 <template>
@@ -28,7 +37,13 @@
       <div
         class="max-w-screen-xl mx-auto flex justify-between items-center h-16"
       >
-        <img src="@/assets/logo.png" alt="logo" class="h-30 object-contain" />
+        <RouterLink
+          to="/"
+          class="text-xl font-bold text-emerald-600"
+          @click="handleHomeClick"
+        >
+          <img src="@/assets/logo.png" alt="logo" class="h-30 object-contain" />
+        </RouterLink>
         <InputText
           v-model="search"
           type="text"
