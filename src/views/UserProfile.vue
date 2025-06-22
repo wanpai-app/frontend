@@ -164,7 +164,7 @@
               訂單中心
             </RouterLink>
             <RouterLink
-              to="/"
+              to="/favorites"
               class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-surface-600 hover:text-surface-900 hover:bg-surface-100 rounded-md transition-colors"
             >
               <i class="pi pi-heart"></i>
