@@ -1,11 +1,8 @@
-import axios from 'axios'
+import axios from '@/utils/axiosInstance'
 
 export async function createEcpayOrder(payload, toast) {
   try {
-    const response = await axios.post(
-      'http://localhost:3000/api/create-order',
-      payload
-    )
+    const response = await axios.post('/create-order', payload)
 
     if (response.data && response.data.includes('<form id="_form_aiochk"')) {
       const div = document.createElement('div')

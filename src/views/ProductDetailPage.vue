@@ -1,7 +1,7 @@
 <script setup>
   import { ref, onMounted, nextTick } from 'vue'
   import { useRoute } from 'vue-router'
-  import axios from 'axios'
+  import axios from '@/utils/axiosInstance'
   import Image from 'primevue/image'
   import Button from 'primevue/button'
   import InputNumber from 'primevue/inputnumber'
@@ -15,7 +15,7 @@
     window.scrollTo(0, 0)
 
     const id = route.params.id
-    const res = await axios.get(`/api/products/${id}`)
+    const res = await axios.get(`/products/${id}`)
     product.value = res.data
 
     await nextTick()
@@ -32,7 +32,7 @@
     product.value.isFavorited = !originalState
 
     try {
-      await axios.post(`/api/products/${productId}/favorite`, {
+      await axios.post(`/products/${productId}/favorite`, {
         favorited: product.value.isFavorited,
       })
     } catch {

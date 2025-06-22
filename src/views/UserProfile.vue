@@ -1,6 +1,6 @@
 <script setup>
   import { ref, onMounted } from 'vue'
-  import axios from 'axios'
+  import axios from '@/utils/axiosInstance' // ✅ 用你的 axios instance
   import InputText from 'primevue/inputtext'
   import { useToast } from 'primevue/usetoast'
   import Toast from 'primevue/toast'
@@ -19,14 +19,7 @@
 
   onMounted(async () => {
     try {
-      const response = await axios.get(
-        'http://localhost:3000/api/users/profile',
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        }
-      )
+      const response = await axios.get('/users/profile') // ✅ 改成相對路徑
       profile.value = response.data
       editProfile.value = { ...profile.value }
     } catch {
@@ -54,6 +47,7 @@
   async function onSave() {
     emailError.value = ''
     phoneError.value = ''
+
     if (!isValidEmail(editProfile.value.email)) {
       emailError.value = 'Email 格式錯誤'
       toast.add({
@@ -64,6 +58,7 @@
       })
       return
     }
+
     if (
       !editProfile.value.username ||
       editProfile.value.username.trim() === ''
@@ -89,16 +84,11 @@
     }
 
     try {
-      await axios.put(
-        'http://localhost:3000/api/users/profile',
-        editProfile.value,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
+      await axios.put('/users/profile', editProfile.value, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
       profile.value = { ...editProfile.value }
       isEdit.value = false
