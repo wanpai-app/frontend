@@ -22,7 +22,6 @@ const updateProduct = async (id, data) => {
   return res.data
 }
 
-
 const fetchFilterData = async () => {
   const res = await axios.get('/tags/filter')
   return res.data
