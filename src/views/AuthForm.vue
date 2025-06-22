@@ -3,7 +3,7 @@
   import { useRouter } from 'vue-router'
   import { useAuthStore } from '@/stores/auth'
   import { useToast } from 'primevue/usetoast'
-  import axios from 'axios'
+  import axios from '@/utils/axiosInstance'
   import Button from 'primevue/button'
   import Toast from 'primevue/toast'
 
@@ -40,7 +40,7 @@
     }
 
     try {
-      const resp = await axios.post('http://localhost:3000/api/users/login', {
+      const resp = await axios.post('/users/login', {
         email: email.value,
         password: password.value,
       })
@@ -102,7 +102,6 @@
       return
     }
 
-    // 簡單的密碼強度檢查
     if (password.value.length < 6) {
       toast.add({
         severity: 'warn',
@@ -114,14 +113,11 @@
     }
 
     try {
-      const resp = await axios.post(
-        'http://localhost:3000/api/users/register',
-        {
-          username: username.value,
-          email: email.value,
-          password: password.value,
-        }
-      )
+      const resp = await axios.post('/users/register', {
+        username: username.value,
+        email: email.value,
+        password: password.value,
+      })
 
       if (resp.status === 201) {
         toast.add({
