@@ -15,7 +15,7 @@
   import { useToast } from 'primevue/usetoast'
   import Toast from 'primevue/toast'
   import InputText from 'primevue/inputtext'
-  import axios from 'axios'
+  import axios from '@/utils/axiosInstance'
   const toast = useToast()
   // Pinia 購物車狀態
   const cart = useCartStore()
@@ -160,14 +160,7 @@
   async function loadUserProfile() {
     try {
       profileLoading.value = true
-      const response = await axios.get(
-        'http://localhost:3000/api/users/profile',
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`, // 根據你的認證方式調整
-          },
-        }
-      )
+      const response = await axios.get('users/profile')
       const profile = response.data
       if (profile) {
         shippingForm.recipientPhone = profile.phone || ''
