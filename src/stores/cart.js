@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import axios from '@/utils/axiosInstance'
 
 function isLogin() {
   return !!localStorage.getItem('token')
@@ -23,21 +23,16 @@ export const useCartStore = defineStore('cart', {
       if (!isLogin()) {
         throw new Error('請先登入會員')
       }
-      const token = localStorage.getItem('token')
-      const res = await axios.get('/api/cart', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      const res = await axios.get('/cart')
       this.items = Array.isArray(res.data) ? res.data : []
     },
     async add(product) {
       if (!isLogin()) {
         throw new Error('請先登入會員再將商品加入購物車！')
       }
-      const token = localStorage.getItem('token')
       await axios.post(
-        '/api/cart',
-        { productId: product.id, quantity: product.qty || 1 },
-        { headers: { Authorization: `Bearer ${token}` } }
+        '/cart',
+        { productId: product.id, quantity: product.qty || 1 } 
       )
       await this.fetchCart()
     },
@@ -45,11 +40,9 @@ export const useCartStore = defineStore('cart', {
       if (!isLogin()) {
         throw new Error('請先登入會員')
       }
-      const token = localStorage.getItem('token')
       await axios.put(
-        `/api/cart/${id}`,
-        { quantity: qty },
-        { headers: { Authorization: `Bearer ${token}` } }
+        `/cart/${id}`,
+        { quantity: qty }
       )
       await this.fetchCart()
     },
@@ -57,20 +50,14 @@ export const useCartStore = defineStore('cart', {
       if (!isLogin()) {
         throw new Error('請先登入會員')
       }
-      const token = localStorage.getItem('token')
-      await axios.delete(`/api/cart/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      await axios.delete(`/cart/${id}`)
       await this.fetchCart()
     },
     async clear() {
       if (!isLogin()) {
         throw new Error('請先登入會員')
       }
-      const token = localStorage.getItem('token')
-      await axios.delete('/api/cart', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      await axios.delete('/cart')
       await this.fetchCart()
     },
   },
