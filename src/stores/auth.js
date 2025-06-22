@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useCartStore } from '@/stores/cart'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -43,6 +44,9 @@ export const useAuthStore = defineStore('auth', {
       this.token = null
       this.role = null
       this.isLoggedIn = false
+
+      const cartStore = useCartStore()
+      cartStore.items = []
     },
   },
 })

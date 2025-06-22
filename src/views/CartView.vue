@@ -20,9 +20,12 @@
   const cart = useCartStore()
   const router = useRouter()
 
+  // 選中的商品列表
   const selectedItems = ref([])
+  // 選中的商品數量
   const showShippingDetails = ref(false)
 
+  //根據orders資料庫要的屬性做命名
   const shippingForm = reactive({
     recipientName: '',
     recipientPhone: '',
@@ -82,13 +85,14 @@ const shippingDetailsMove = ref(null)
       selectedItems.value && selectedItems.value.length > 0 ? 100 : 0
   }
 
-  
+  // 監聽選中項目和購物車資料變化
   watch(
     [selectedItems, () => cart.items],
     ([newSelectedItems, newCartItems]) => {
-      
+      // 更新運費
       calculateShipping()
-     
+
+      // 如果 selectedItems 為空且購物車有商品，則全選
       if (newSelectedItems.length === 0 && newCartItems.length > 0) {
         selectedItems.value = [...newCartItems]
       }
@@ -124,22 +128,22 @@ const shippingDetailsMove = ref(null)
     } else {
       selectedItems.value = []
     }
+    watch(
+      selectedItems,
+      (newVal) => {
+        if (newVal.length === 0) {
+          showShippingDetails.value = false
+          //關閉(收貨詳細資訊)清除底下input框輸入過的內容
+          shippingForm.recipientName = ''
+          shippingForm.recipientPhone = ''
+          shippingForm.shippingAddress = ''
+        }
+      },
+      { deep: true }
+    )
   }
 
-  watch(
-    selectedItems,
-    (newVal) => {
-      if (newVal.length === 0) {
-        showShippingDetails.value = false
-        //關閉(收貨詳細資訊)清除底下input框輸入過的內容
-        shippingForm.recipientName = ''
-        shippingForm.recipientPhone = ''
-        shippingForm.shippingAddress = ''
-      }
-    },
-    { deep: true }
-  )
-
+  // 結帳
   async function ecpayCheckout() {
     if (!isRecipientNameValid.value) {
       toast.add({
@@ -170,7 +174,9 @@ const shippingDetailsMove = ref(null)
       })
       return
     }
-    const itemNames = selectedItems.value.map((item) => item.product.name).join('#')
+    const itemNames = selectedItems.value
+      .map((item) => item.product.name)
+      .join('#')
     const tradeDesc = `購物車商品結帳: ${itemNames}`
 
     const payload = {
@@ -200,6 +206,7 @@ const shippingDetailsMove = ref(null)
     }
   }
 
+  // 單選
   function toggleSelectItem(item, event) {
     const isChecked = event.target.checked
     if (isChecked) {
@@ -236,11 +243,15 @@ const shippingDetailsMove = ref(null)
               <tr class="border-b border-gray-700">
                 <th class="px-4 py-2 w-12">
                   <div class="flex items-center justify-center">
-                    <input type="checkbox"
+                    <input
+                      type="checkbox"
                       class="custom-checkbox w-6 h-6 bg-white border-gray-400 focus:ring-2 focus:ring-primary-500"
-                      :checked="selectedItems.length === cart.items.length &&
+                      :checked="
+                        selectedItems.length === cart.items.length &&
                         cart.items.length > 0
-                        " @change="toggleSelectAll" />
+                      "
+                      @change="toggleSelectAll"
+                    />
                   </div>
                 </th>
                 <th class="px-4 py-2 text-left">品名</th>
@@ -250,23 +261,31 @@ const shippingDetailsMove = ref(null)
               </tr>
             </thead>
             <tbody class="bg-white">
-              <tr v-for="item in cart.items" :key="item.id" class="border-b border-gray-200 hover:bg-gray-50">
+              <tr
+                v-for="item in cart.items"
+                :key="item.id"
+                class="border-b border-gray-200 hover:bg-gray-50"
+              >
                 <td class="px-4 py-4">
                   <div class="flex items-center justify-center">
-                    <input type="checkbox"
+                    <input
+                      type="checkbox"
                       class="custom-checkbox w-6 h-6 bg-white border-gray-400 focus:ring-2 focus:ring-primary-500"
                       :checked="selectedItems.some((i) => i.id === item.id)"
-                      @change="toggleSelectItem(item, $event)" />
+                      @change="toggleSelectItem(item, $event)"
+                    />
                   </div>
                 </td>
                 <td class="px-4 py-4">
                   <div class="flex items-center space-x-4">
                     <div class="min-w-20 min-h-20">
-                      <img v-if="item.product.coverImage"
-                           :src="item.product.coverImage" 
-                           :alt="item.product.name"
-                           class="w-20 h-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity duration-200"
-                           @click="goToProductDetail(item.productId)" />
+                      <img
+                        v-if="item.product.coverImage"
+                        :src="item.product.coverImage"
+                        :alt="item.product.name"
+                        class="w-20 h-20 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity duration-200"
+                        @click="goToProductDetail(item.productId)"
+                      />
                     </div>
                     <div class="flex-1 flex flex-col justify-center">
                       <div v-if="item.eta" class="text-sm text-gray-500 mb-1">
@@ -284,8 +303,11 @@ const shippingDetailsMove = ref(null)
                   </div>
                 </td>
                 <td class="px-4 py-4 text-center">
-                  <select v-model.number="item.quantity" @change="updateQty(item.id, item.quantity)"
-                    class="border rounded px-2 py-1">
+                  <select
+                    v-model.number="item.quantity"
+                    @change="updateQty(item.id, item.quantity)"
+                    class="border rounded px-2 py-1"
+                  >
                     <option v-for="n in 10" :key="n" :value="n">{{ n }}</option>
                   </select>
                 </td>
@@ -294,8 +316,10 @@ const shippingDetailsMove = ref(null)
                 </td>
                 <td class="px-4 py-4">
                   <div class="flex items-center justify-center">
-                    <button @click="remove(item.id)"
-                      class="text-red-600 hover:text-red-800 focus:outline-none cursor-pointer inline-flex items-center">
+                    <button
+                      @click="remove(item.id)"
+                      class="text-red-600 hover:text-red-800 focus:outline-none cursor-pointer inline-flex items-center"
+                    >
                       <i class="pi pi-trash" style="font-size: 1.5rem"></i>
                     </button>
                   </div>
@@ -343,6 +367,7 @@ const shippingDetailsMove = ref(null)
     </main>
   </div>
 
+  <!-- 收貨詳細資訊 -->
   <div
     class="bg-black text-white flex flex-col"
     v-if="showShippingDetails"

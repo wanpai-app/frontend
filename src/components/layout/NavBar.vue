@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, watch, computed } from 'vue'
+  import { ref, onMounted, watch } from 'vue'
   import { RouterLink, useRoute, useRouter } from 'vue-router'
   import Drawer from 'primevue/drawer'
   import Button from 'primevue/button'
@@ -98,6 +98,38 @@
     })
   }
 
+  watch(
+    () => authStore.isLoggedIn,
+    (isLoggedIn) => {
+      if (isLoggedIn) {
+        cart.fetchCart().catch(() => {
+          toast.add({
+            severity: 'warn',
+            summary: '載入失敗',
+            detail: '購物車資料載入失敗，請重新整理頁面',
+            life: 3000,
+          })
+        })
+      } else {
+        cart.items = []
+      }
+    },
+    { immediate: true }
+  )
+
+  onMounted(() => {
+    if (authStore.isLoggedIn) {
+      cart.fetchCart().catch(() => {
+        toast.add({
+          severity: 'warn',
+          summary: '載入失敗',
+          detail: '購物車資料載入失敗，請重新整理頁面',
+          life: 3000,
+        })
+      })
+    }
+  })
+
   const logout = () => {
     authStore.logout()
     router.push('/authform')
@@ -114,7 +146,7 @@
         summary: '請先登入',
         detail: '請先登入會員再查看購物車！',
         life: 3000,
-        position: 'top-right'
+        position: 'top-right',
       })
       return
     }
@@ -213,7 +245,7 @@
           <Button
             v-else
             label="登出"
-            severity="secondary"
+            severity="danger"
             size="small"
             @click="logout"
           />
@@ -249,7 +281,12 @@
 
         <div
           class="text-gray-800 hover:text-emerald-600 text-base font-medium flex items-center cursor-pointer"
-          @click="() => { visible = false; handleCartClick() }"
+          @click="
+            () => {
+              visible = false
+              handleCartClick()
+            }
+          "
         >
           <i class="pi pi-shopping-cart mr-2"></i>
           購物車
