@@ -6,17 +6,16 @@
   import Column from 'primevue/column'
   import Button from 'primevue/button'
   import { useRouter } from 'vue-router'
-  import { fetchOrders, calculateOrdersWithTotal } from '@/api/orders'
+  import { fetchOrders } from '@/api/orders'
+  import { calculateOrdersWithTotal } from '@/api/orders'
   import { useAuthStore } from '@/stores/auth'
 
   const authStore = useAuthStore()
   const router = useRouter()
-
   const searchOrderId = ref('')
   const selectedDateRange = ref('')
   const expandedRows = ref([])
   const errorMsg = ref('')
-  const orders = ref([])
 
   const dateOptions = [
     { label: '全部時間', value: '' },
@@ -27,21 +26,15 @@
     { label: '一年內', value: '365' },
   ]
 
-  const fetchOrdersAndSet = async () => {
+  const orders = ref([])
+
+  async function fetchOrdersAndSet() {
     try {
       const filters = {}
       if (searchOrderId.value) filters.orderNumber = searchOrderId.value
       if (selectedDateRange.value) filters.dateRange = selectedDateRange.value
-
-      const result = await fetchOrders(filters)
-
-      if (Array.isArray(result)) {
-        orders.value = result
-        errorMsg.value = ''
-        expandedRows.value = []
-      } else {
-        throw new Error('回傳格式錯誤')
-      }
+      orders.value = await fetchOrders(filters)
+      errorMsg.value = ''
     } catch {
       errorMsg.value = '無法取得訂單資料，請稍後再試。'
       orders.value = []
@@ -65,9 +58,7 @@
     })
   })
 
-  const isEmpty = computed(() => !errorMsg.value && orders.value.length === 0)
-
-  const goToDetail = (id) => {
+  function goToDetail(id) {
     router.push(`/orderdetail/${id}`)
   }
 </script>
@@ -99,20 +90,16 @@
       </div>
     </div>
 
-    <div
-      v-if="errorMsg"
-      class="mb-4 px-4 py-2 text-red-700 bg-red-50 border border-red-300 rounded flex items-center gap-2"
-    >
-      <i class="pi pi-exclamation-triangle text-xl"></i>
-      <span>{{ errorMsg }}</span>
+    <div v-if="errorMsg" class="mb-4 px-4 py-2 text-red-700 rounded border">
+      {{ errorMsg }}
     </div>
-
     <h2 class="text-2xl mb-6">我的訂單</h2>
-
-    <div v-if="isEmpty" class="text-gray-500 text-center py-8">
-      您尚未有任何訂單紀錄
+    <div
+      v-if="filteredOrders.length === 0 && !errorMsg"
+      class="text-gray-500 text-center py-8"
+    >
+      尚無訂單紀錄
     </div>
-
     <DataTable
       v-model:expandedRows="expandedRows"
       :value="filteredOrders"
@@ -162,7 +149,6 @@
       </template>
     </DataTable>
   </div>
-
   <div v-else class="flex flex-col items-center justify-center py-24">
     <i
       class="pi pi-info-circle mb-4"
