@@ -292,7 +292,7 @@ const shippingDetailsMove = ref(null)
                         預計 {{ item.eta }} 出貨
                       </div>
                       <div class="font-medium text-gray-800">
-                        <span 
+                        <span
                           class="cursor-pointer text-gray-700 hover:text-slate-800 hover:bg-slate-100 transition-all duration-200 font-semibold px-2 py-1 rounded"
                           @click="goToProductDetail(item.productId)"
                         >

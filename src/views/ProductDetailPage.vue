@@ -73,14 +73,20 @@ const toggleFavorite = async () => {
       {
         headers: { Authorization: `Bearer ${token}` },
       }
-      toast.add({
-        severity: 'error',
-        summary: '錯誤',
-        detail: '商品資料尚未載入',
-        life: 3000,
-      })
+      async function addToCart() {
+        if (!product.value.id) {
+          toast.add({
+            severity: 'error',
+            summary: '錯誤',
+            detail: '商品資料尚未載入',
+            life: 3000,
+          })
+        }
+      }
     }
-  } catch (err) {
+
+  }
+  catch (err) {
     product.value.isFavorited = originalState
     toast.add({
       severity: 'error',
@@ -104,16 +110,28 @@ const getCurrentImage = () => {
 const getTotalImages = () => {
   if (!product.value.images) return 0
   return 1 + (product.value.images.previews?.length || 0)
-  function addToCart() {
-    if (!product.value.id) {
-      alert('商品資料尚未載入')
-      return
-    }
-    cart.add({ ...product.value, qty: quantity.value })
+}
+
+
+const addToCart = async () => {
+  if (!product.value.id) {
+    alert('商品資料尚未載入')
+    return
+  }
+
+  try {
+    await cart.add({ ...product.value, qty: quantity.value })
     toast.add({
       severity: 'success',
       summary: '成功',
       detail: `已加入購物車 ${quantity.value} 個！`,
+      life: 3000,
+    })
+  } catch (error) {
+    toast.add({
+      severity: 'warn',
+      summary: '請先登入',
+      detail: '請先登入會員再將商品加入購物車！',
       life: 3000,
     })
   }
