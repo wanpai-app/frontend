@@ -59,7 +59,7 @@
 
         setTimeout(() => {
           if (resp.data.role === 'admin') {
-            router.push('/admin')
+            router.push('/admin/products')
           } else {
             router.push('/')
           }
