@@ -17,9 +17,16 @@ export async function fetchOrders(filters = {}) {
   return res.data
 }
 
-// 查詢單一訂單（含明細）
 export async function fetchOrderDetail(orderId) {
-  const res = await axios.get(`/api/orders/${orderId}`)
+  const authStore = useAuthStore()
+  const token = authStore.token
+
+  const res = await axios.get(`/api/orders/${orderId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
   return res.data
 }
 

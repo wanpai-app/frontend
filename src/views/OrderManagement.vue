@@ -94,6 +94,12 @@
       {{ errorMsg }}
     </div>
     <h2 class="text-2xl mb-6">我的訂單</h2>
+    <div
+      v-if="filteredOrders.length === 0 && !errorMsg"
+      class="text-gray-500 text-center py-8"
+    >
+      尚無訂單紀錄
+    </div>
     <DataTable
       v-model:expandedRows="expandedRows"
       :value="filteredOrders"
@@ -127,12 +133,12 @@
               class="flex items-center mb-2 gap-4"
             >
               <img
-                :src="item.image"
+                :src="item.productImage"
                 alt="product"
                 class="w-16 h-16 rounded border"
               />
               <div class="flex-1">
-                <div class="font-medium">{{ item.name }}</div>
+                <div class="font-medium">{{ item.productName }}</div>
                 <div class="text-sm text-gray-600">
                   數量：{{ item.quantity }} ｜ 售價：{{ item.price }} 元
                 </div>
