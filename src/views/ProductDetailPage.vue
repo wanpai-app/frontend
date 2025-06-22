@@ -18,7 +18,7 @@
     const id = route.params.id
 
     const token = localStorage.getItem('token')
-    const res = await axios.get(`/api/products/${id}`, {
+    const res = await axios.get(`/products/${id}`, {
       headers: {
         Authorization: token ? `Bearer ${token}` : '',
       },
@@ -55,7 +55,7 @@
     try {
       if (product.value.isFavorited) {
         await axios.post(
-          '/api/favorites',
+          '/favorites',
           { productId },
           { headers: { Authorization: `Bearer ${token}` } }
         )
