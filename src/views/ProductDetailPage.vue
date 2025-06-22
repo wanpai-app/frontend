@@ -75,8 +75,8 @@ const toggleFavorite = async () => {
       }
       toast.add({
         severity: 'error',
-        summary: '已取消收藏',
-        detail: '已從收藏中移除此商品',
+        summary: '錯誤',
+        detail: '商品資料尚未載入',
         life: 3000,
       })
     }
@@ -110,7 +110,12 @@ const getTotalImages = () => {
       return
     }
     cart.add({ ...product.value, qty: quantity.value })
-    alert('已加入購物車！')
+    toast.add({
+      severity: 'success',
+      summary: '成功',
+      detail: `已加入購物車 ${quantity.value} 個！`,
+      life: 3000,
+    })
   }
 }
 </script>
