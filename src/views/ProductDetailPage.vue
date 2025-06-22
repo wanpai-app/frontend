@@ -4,6 +4,7 @@
   import axios from '@/utils/axiosInstance'
   import Image from 'primevue/image'
   import Button from 'primevue/button'
+  import { useToast } from 'primevue/usetoast'
   import InputNumber from 'primevue/inputnumber'
 
   const route = useRoute()
@@ -15,7 +16,14 @@
     window.scrollTo(0, 0)
 
     const id = route.params.id
-    const res = await axios.get(`/products/${id}`)
+
+    const token = localStorage.getItem('token')
+    const res = await axios.get(`/api/products/${id}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : '',
+      },
+    })
+
     product.value = res.data
 
     await nextTick()
@@ -24,24 +32,52 @@
     }
   })
 
+  const toast = useToast()
   const toggleFavorite = async () => {
     const productId = product.value?.id
     if (!productId) return
+
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+      toast.add({
+        severity: 'warn',
+        summary: '尚未登入',
+        detail: '請先登入才能收藏商品',
+        life: 3000,
+      })
+      return
+    }
 
     const originalState = product.value.isFavorited
     product.value.isFavorited = !originalState
 
     try {
-      await axios.post(`/products/${productId}/favorite`, {
-        favorited: product.value.isFavorited,
-      })
-    } catch {
+      if (product.value.isFavorited) {
+        await axios.post(
+          '/api/favorites',
+          { productId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+      } else {
+        await axios.delete(`/api/favorites/${productId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      }
+    } catch (err) {
       product.value.isFavorited = originalState
+      toast.add({
+        severity: 'error',
+        summary: '收藏操作失敗',
+        detail: err?.response?.data?.error || '請稍後再試',
+        life: 3000,
+      })
     }
   }
 </script>
 
 <template>
+  <Toast />
   <div class="max-w-screen-md mx-auto px-4 py-10 space-y-6">
     <div class="bg-white shadow-md rounded-lg p-6 md:p-8">
       <div class="flex flex-col md:flex-row gap-10 items-start">
@@ -99,7 +135,7 @@
               class="flex-1"
             />
             <Button
-              :label="product.isFavorited ? '取消收藏' : '收藏'"
+              :label="product.isFavorited ? '已收藏' : '收藏'"
               icon="pi pi-heart"
               class="flex-1"
               @click="toggleFavorite"
