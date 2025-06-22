@@ -1,8 +1,7 @@
-import axios from 'axios'
+import axios from '@/utils/axiosInstance'
 import { useAuthStore } from '@/stores/auth'
 
-// 查詢訂單列表（可帶條件）
-
+// for users
 export async function fetchOrders(filters = {}) {
   const authStore = useAuthStore()
   const token = authStore.token
