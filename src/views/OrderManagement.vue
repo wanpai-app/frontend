@@ -1,4 +1,5 @@
 <script setup>
+  import axios from '@/utils/axiosInstance'
   import { ref, computed, onMounted, watch } from 'vue'
   import InputText from 'primevue/inputtext'
   import Select from 'primevue/select'
@@ -52,6 +53,8 @@
     const today = new Date()
     return ordersWithTotal.value.filter((order) => {
       const orderDate = new Date(order.date)
+      if (isNaN(orderDate)) return false
+
       const diffTime = today - orderDate
       const diffDays = diffTime / (1000 * 60 * 60 * 24)
       return diffDays <= parseInt(selectedDateRange.value)
@@ -59,6 +62,10 @@
   })
 
   function goToDetail(id) {
+    if (!id || isNaN(Number(id))) {
+      console.warn('⚠️ 訂單 ID 無效:', id)
+      return
+    }
     router.push(`/orderdetail/${id}`)
   }
 </script>
