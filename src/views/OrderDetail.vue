@@ -1,9 +1,22 @@
 <script setup>
-  import { ref } from 'vue'
+  import axios from '@/utils/axiosInstance'
+  import { ref, onMounted } from 'vue'
   import { useRoute } from 'vue-router'
 
   const route = useRoute()
   const orderId = route.params.id
+
+  const order = ref(null)
+  const errorMsg = ref('')
+
+  onMounted(async () => {
+    try {
+      const res = await axios.get(`/orders/${orderId}`)
+      order.value = res.data
+    } catch {
+      errorMsg.value = '無法取得訂單資料'
+    }
+  })
 
   const steps = [
     {
@@ -28,40 +41,8 @@
     },
   ]
 
-  const order = ref({
-    id: orderId,
-    date: '2025-05-26',
-    status: '待出貨',
-    total: 960,
-    returnStatus: '未申請',
-    returnReason: '',
-    items: [
-      {
-        name: '可愛娃娃',
-        quantity: 2,
-        price: 300,
-        image:
-          'https://primefaces.org/cdn/primevue/images/product/bamboo-watch.jpg',
-      },
-      {
-        name: '吉伊卡哇',
-        quantity: 3,
-        price: 120,
-        image:
-          'https://primefaces.org/cdn/primevue/images/product/black-watch.jpg',
-      },
-    ],
-    receiver: {
-      name: '林雨',
-      phone: '0900-123-456',
-      shop: '全家便利商店',
-      branch: '信義威秀店',
-      address: '台北市信義區松壽路 20 號',
-      pickupDeadline: '2025-06-02',
-    },
-  })
-
   function applyReturn() {
+    if (!order.value) return
     order.value.returnStatus = '已申請'
     order.value.returnReason = '商品有瑕疵'
   }
