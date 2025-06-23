@@ -1,7 +1,7 @@
 <script setup>
   import { ref, computed, watch, onMounted } from 'vue'
   import Divider from 'primevue/divider'
-  import axios from '@/utils/axiosInstance' 
+  import axios from '@/utils/axiosInstance'
   import { useNotificationStore } from '@/stores/notifications'
 
   const notificationStore = useNotificationStore()
@@ -51,7 +51,7 @@
     if (!item.read) {
       try {
         await axios.patch(
-          `/api/notifications/${item.id}/read`,
+          `/notifications/${item.id}/read`,
           {},
           {
             headers: { Authorization: `Bearer ${token}` },
