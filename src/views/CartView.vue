@@ -1,225 +1,201 @@
 <script setup>
-  import {
-    ref,
-    reactive,
-    toRefs,
-    computed,
-    watch,
-    nextTick,
-    onMounted,
-  } from 'vue'
-  import { useRouter } from 'vue-router'
-  import { useCartStore } from '@/stores/cart'
-  import Button from '@/volt/Button.vue'
-  import { createEcpayOrder } from '@/api/createEcpayOrder'
-  import { useToast } from 'primevue/usetoast'
-  import Toast from 'primevue/toast'
-  import InputText from 'primevue/inputtext'
-  const toast = useToast()
-  // Pinia 購物車狀態
-  const cart = useCartStore()
-  const router = useRouter()
+import {
+  ref,
+  reactive,
+  toRefs,
+  computed,
+  watch,
+  nextTick,
+  onMounted,
+} from 'vue'
+import { useRouter } from 'vue-router'
+import { useCartStore } from '@/stores/cart'
+import Button from '@/volt/Button.vue'
+import { createEcpayOrder } from '@/api/createEcpayOrder'
+import { useToast } from 'primevue/usetoast'
+import Toast from 'primevue/toast'
+import InputText from 'primevue/inputtext'
 
-  // 選中的商品列表
-  const selectedItems = ref([])
-  // 選中的商品數量
-  const showShippingDetails = ref(false)
+const toast = useToast()
+const cart = useCartStore()
+const router = useRouter()
 
-  //根據orders資料庫要的屬性做命名
-  const shippingForm = reactive({
-    recipientName: '',
-    recipientPhone: '',
-    shippingAddress: '',
-  })
+const selectedItems = ref([])
+const showShippingDetails = ref(false)
 
-const profileLoading = ref(false)
+const shippingForm = reactive({
+  recipientName: '',
+  recipientPhone: '',
+  shippingAddress: '',
+})
 
 const shippingDetailsMove = ref(null)
 
-  const isRecipientNameValid = computed(() => {
-    if (shippingForm.recipientName.trim() === '') {
-      return false
-    }
-    const chineseRegex = /^[\u4e00-\u9fa5]{2,}$/
-    return chineseRegex.test(shippingForm.recipientName.trim())
-  })
+const isRecipientNameValid = computed(() => {
+  if (shippingForm.recipientName.trim() === '') return false
+  const chineseRegex = /^[\u4e00-\u9fa5]{2,}$/
+  return chineseRegex.test(shippingForm.recipientName.trim())
+})
 
-  const isRecipientPhoneValid = computed(() => {
-    if (shippingForm.recipientPhone.trim() === '') {
-      return false
-    }
-    const cellphoneRegex = /^09\d{8}$/
-    return cellphoneRegex.test(shippingForm.recipientPhone)
-  })
+const isRecipientPhoneValid = computed(() => {
+  if (shippingForm.recipientPhone.trim() === '') return false
+  const cellphoneRegex = /^09\d{8}$/
+  return cellphoneRegex.test(shippingForm.recipientPhone)
+})
 
-  const isShippingAddressValid = computed(() => {
-    const address = shippingForm.shippingAddress.trim()
+const isShippingAddressValid = computed(() => {
+  const address = shippingForm.shippingAddress.trim()
+  if (address === '') return false
+  const chineseCharacterRegex = /[\u4e00-\u9fa5]/
+  return chineseCharacterRegex.test(address)
+})
 
-    if (address === '') {
-      return false
-    }
+const selectedCount = computed(() => selectedItems.value.length)
 
-    const chineseCharacterRegex = /[\u4e00-\u9fa5]/
-    return chineseCharacterRegex.test(address)
-  })
+const selectedTotal = computed(() => {
+  if (!selectedItems.value || selectedItems.value.length === 0) return 0
+  return selectedItems.value.reduce((sum, item) => {
+    const price = Number(item.priceAtAdd) || 0
+    const qty = Number(item.quantity) || 0
+    return sum + price * qty
+  }, 0)
+})
 
-  const selectedCount = computed(() => selectedItems.value.length)
+const state = reactive({
+  shipping: 0,
+})
 
-  const selectedTotal = computed(() => {
-    if (!selectedItems.value || selectedItems.value.length === 0) return 0
-    return selectedItems.value.reduce((sum, item) => {
-      const price = Number(item.priceAtAdd) || 0
-      const qty = Number(item.quantity) || 0
-      return sum + price * qty
-    }, 0)
-  })
+const { shipping } = toRefs(state)
 
-  // 運費狀態
-  const state = reactive({
-    shipping: 0,
-  })
+function calculateShipping() {
+  state.shipping = selectedItems.value.length > 0 ? 100 : 0
+}
 
-  // TODO: 運費邏輯
-  function calculateShipping() {
-    state.shipping =
-      selectedItems.value && selectedItems.value.length > 0 ? 100 : 0
-  }
-
-  // 監聽選中項目和購物車資料變化
-  watch(
-    [selectedItems, () => cart.items],
-    ([newSelectedItems, newCartItems]) => {
-      // 更新運費
-      calculateShipping()
-    },
-    { deep: true }
-  )
-
-  async function updateQty(id, qty) {
-    await cart.updateQty(id, qty)
+// 全選或全不選
+function toggleSelectAll(event) {
+  const isChecked = event.target.checked
+  if (isChecked) {
     selectedItems.value = [...cart.items]
+  } else {
+    selectedItems.value = []
+    showShippingDetails.value = false
+    shippingForm.recipientName = ''
+    shippingForm.recipientPhone = ''
+    shippingForm.shippingAddress = ''
   }
+  calculateShipping()
+}
 
-  function remove(id) {
-    cart.remove(id)
-    selectedItems.value = selectedItems.value.filter((item) => item.id !== id)
+// 單選
+function toggleSelectItem(item, event) {
+  const isChecked = event.target.checked
+  if (isChecked) {
+    if (!selectedItems.value.find(i => i.id === item.id)) {
+      selectedItems.value = [...selectedItems.value, item]
+    }
+  } else {
+    selectedItems.value = selectedItems.value.filter(i => i.id !== item.id)
   }
+  calculateShipping()
+}
 
-  const formatCurrency = (value) =>
-    new Intl.NumberFormat('zh-TW', {
-      style: 'currency',
-      currency: 'TWD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value)
-
-  const { shipping } = toRefs(state)
-
-  // 全選
-  function toggleSelectAll(event) {
-    const isChecked = event.target.checked
-    if (isChecked) {
-      selectedItems.value = [...cart.items]
-    } else {
-      selectedItems.value = []
-    }
-  }
-
-  // 結帳
-  async function ecpayCheckout() {
-    if (!isRecipientNameValid.value) {
-      toast.add({
-        severity: 'error',
-        summary: '輸入錯誤',
-        detail: '收件人姓名不能為空，並至少輸入兩個中文字！',
-        life: 3000,
-      })
-      return
-    }
-
-    if (!isRecipientPhoneValid.value) {
-      toast.add({
-        severity: 'error',
-        summary: '輸入錯誤',
-        detail: '請輸入手機號並以09開頭的10位數字！',
-        life: 3000,
-      })
-      return
-    }
-
-    if (!isShippingAddressValid.value) {
-      toast.add({
-        severity: 'error',
-        summary: '輸入錯誤',
-        detail: '收件地址不能為空,並輸入中文地址',
-        life: 3000,
-      })
-      return
-    }
-    const itemNames = selectedItems.value
-      .map((item) => item.product.name)
-      .join('#')
-    const tradeDesc = `購物車商品結帳: ${itemNames}`
-
-    const payload = {
-      TotalAmount: (selectedTotal.value + shipping.value).toString(),
-      TradeDesc: tradeDesc,
-      ItemName: itemNames,
-    }
-
-    try {
-      await createEcpayOrder(payload, toast)
-      for (const item of selectedItems.value) {
-        await cart.remove(item.id)
-      }
-      selectedItems.value = []
-      router.push('/')
-    } catch (error) {
-      console.error('結帳失敗:', error)
-    }
-  }
-
-  function contactDetails() {
-    if (selectedItems.value.length === 0) {
-      toast.add({
-        severity: 'error',
-        summary: '警告',
-        detail: '請選擇至少一項商品才能結帳！',
-        life: 3000,
-      })
-    } else {
-      showShippingDetails.value = true
-      nextTick(() => {
-        if (shippingDetailsMove.value) {
-          shippingDetailsMove.value.scrollIntoView({ behavior: 'smooth' })
-        }
-      })
-    }
-  }
-
-  // 單選
-  function toggleSelectItem(item, event) {
-    const isChecked = event.target.checked
-    if (isChecked) {
-      if (!selectedItems.value.find((i) => i.id === item.id)) {
-        selectedItems.value = [...selectedItems.value, item]
-      }
-    } else {
-      selectedItems.value = selectedItems.value.filter((i) => i.id !== item.id)
-    }
+watch(
+  [selectedItems, () => cart.items],
+  ([newSelectedItems, newCartItems]) => {
     calculateShipping()
+    if (newSelectedItems.length === 0 && newCartItems.length > 0) {
+      // 保持 selectedItems 為空，不自動全選
+    }
+  },
+  { deep: true }
+)
+
+async function updateQty(id, qty) {
+  await cart.updateQty(id, qty)
+  selectedItems.value = [...cart.items.filter(item => selectedItems.value.some(i => i.id === item.id))]
+}
+
+function remove(id) {
+  cart.remove(id)
+  selectedItems.value = selectedItems.value.filter(item => item.id !== id)
+}
+
+const formatCurrency = value =>
+  new Intl.NumberFormat('zh-TW', {
+    style: 'currency',
+    currency: 'TWD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value)
+
+function contactDetails() {
+  if (selectedItems.value.length === 0) {
+    toast.add({
+      severity: 'error',
+      summary: '警告',
+      detail: '請選擇至少一項商品才能結帳！',
+      life: 3000,
+    })
+  } else {
+    showShippingDetails.value = true
+    nextTick(() => {
+      if (shippingDetailsMove.value) {
+        shippingDetailsMove.value.scrollIntoView({ behavior: 'smooth' })
+      }
+    })
+  }
+}
+
+async function ecpayCheckout() {
+  if (!isRecipientNameValid.value) {
+    toast.add({
+      severity: 'error',
+      summary: '輸入錯誤',
+      detail: '收件人姓名不能為空，並至少輸入兩個中文字！',
+      life: 3000,
+    })
+    return
+  }
+  if (!isRecipientPhoneValid.value) {
+    toast.add({
+      severity: 'error',
+      summary: '輸入錯誤',
+      detail: '請輸入手機號並以09開頭的10位數字！',
+      life: 3000,
+    })
+    return
+  }
+  if (!isShippingAddressValid.value) {
+    toast.add({
+      severity: 'error',
+      summary: '輸入錯誤',
+      detail: '收件地址不能為空,並輸入中文地址',
+      life: 3000,
+    })
+    return
+  }
+  const itemNames = selectedItems.value.map(item => item.product.name).join('#')
+  const tradeDesc = `購物車商品結帳: ${itemNames}`
+
+  const payload = {
+    TotalAmount: (selectedTotal.value + shipping.value).toString(),
+    TradeDesc: tradeDesc,
+    ItemName: itemNames,
   }
 
-  // 跳轉到商品詳細頁
-  function goToProductDetail(productId) {
-    router.push(`/products/${productId}`)
-  }
+  await createEcpayOrder(payload, toast)
+}
 
-  onMounted(async () => {
-    await cart.fetchCart()
-    selectedItems.value = [...cart.items]
-  })
+function goToProductDetail(productId) {
+  router.push(`/products/${productId}`)
+}
+
+onMounted(async () => {
+  await cart.fetchCart()
+  selectedItems.value = [...cart.items]
+})
 </script>
+
 
 <template>
   <Toast />
