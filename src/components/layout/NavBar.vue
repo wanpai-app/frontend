@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, watch } from 'vue'
+  import { ref, watch, computed } from 'vue'
   import { RouterLink, useRoute, useRouter } from 'vue-router'
   import Drawer from 'primevue/drawer'
   import Button from 'primevue/button'
@@ -35,11 +35,7 @@
 
   const searchInput = ref(route.query.keyword || '')
 
-  const menuItems = ref([
-    { label: '首頁', to: '/' },
-    { label: '商品列表', to: '/products' },
-    // 您可以在這裡添加更多導覽項目
-  ])
+  const menuItems = ref([{ label: '後台管理', to: '/admin/products' }])
 
   const memberMenu = ref()
 
@@ -127,13 +123,16 @@
         />
       </RouterLink>
 
-      <nav class="hidden md:flex gap-8 text-sm text-gray-700 font-medium">
+      <nav
+        v-if="authStore.isAdmin"
+        class="hidden md:flex gap-8 text-sm text-gray-700 font-medium"
+      >
         <RouterLink
           v-for="item in menuItems"
           :key="item.label"
           :to="item.to"
           @click="item.to === '/' ? handleHomeClick($event) : null"
-          class="hover:text-emerald-600 transition"
+          class="hover:text-yellow-600 transition"
         >
           {{ item.label }}
         </RouterLink>
