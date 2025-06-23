@@ -10,6 +10,7 @@
   const product = ref({})
   const quantity = ref(1)
   const inputRef = ref(null)
+  const selectedImageIndex = ref(0)
 
   onMounted(async () => {
     window.scrollTo(0, 0)
@@ -39,6 +40,21 @@
       product.value.isFavorited = originalState
     }
   }
+
+  const selectImage = (index) => {
+    selectedImageIndex.value = index
+  }
+
+  const getCurrentImage = () => {
+    if (!product.value.images) return null
+    const allImages = [product.value.images.cover, ...(product.value.images.previews || [])]
+    return allImages[selectedImageIndex.value] || product.value.images.cover
+  }
+
+  const getTotalImages = () => {
+    if (!product.value.images) return 0
+    return 1 + (product.value.images.previews?.length || 0)
+  }
 </script>
 
 <template>
@@ -46,14 +62,46 @@
     <div class="bg-white shadow-md rounded-lg p-6 md:p-8">
       <div class="flex flex-col md:flex-row gap-10 items-start">
         <div class="w-full md:max-w-[460px] text-center mx-auto">
-          <Image
-            v-if="product.images?.cover"
-            :src="product.images.cover.imgUrl"
-            alt="Product Cover Image"
-            imageClass="w-64 h-64 object-cover rounded mx-auto"
-            preview
-          />
-          <div class="text-sm text-black mt-2">1 / 3</div>
+          <div class="relative inline-block">
+            <Image
+              v-if="getCurrentImage()"
+              :src="getCurrentImage().imgUrl"
+              alt="Product Image"
+              imageClass="w-64 h-64 object-cover rounded mx-auto"
+              preview
+            />
+            <div class="absolute bottom-2 right-2 bg-gray-300 bg-opacity-60 text-white text-xs px-2 py-1 rounded-[100px]">
+              {{ selectedImageIndex + 1 }} / {{ getTotalImages() }}
+            </div>
+          </div>
+          
+          <div v-if="product.images" class="flex justify-center gap-2 mt-4">
+            <div 
+              class="w-16 h-16 border-2 rounded cursor-pointer overflow-hidden"
+              :class="{ 'border-blue-500': selectedImageIndex === 0, 'border-gray-300': selectedImageIndex !== 0 }"
+              @click="selectImage(0)"
+            >
+              <img
+                :src="product.images.cover.imgUrl"
+                alt="Cover thumbnail"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            
+            <div 
+              v-for="(image, index) in product.images.previews || []"
+              :key="image.id"
+              class="w-16 h-16 border-2 rounded cursor-pointer overflow-hidden"
+              :class="{ 'border-blue-500': selectedImageIndex === index + 1, 'border-gray-300': selectedImageIndex !== index + 1 }"
+              @click="selectImage(index + 1)"
+            >
+              <img
+                :src="image.imgUrl"
+                :alt="`Preview thumbnail ${index + 1}`"
+                class="w-full h-full object-cover"
+              />
+            </div>
+          </div>
         </div>
 
         <div class="w-full md:max-w-[360px] mx-auto flex flex-col space-y-4">
