@@ -1,7 +1,6 @@
 import axios from '@/utils/axiosInstance'
 import { useAuthStore } from '@/stores/auth'
 
-// for users
 export async function fetchOrders(filters = {}) {
   const authStore = useAuthStore()
   const token = authStore.token
@@ -20,7 +19,6 @@ export async function fetchOrderDetail(orderId) {
   return res.data
 }
 
-// for admin
 export async function fetchAllOrders(status = 'all') {
   const res = await axios.get('/admin/orders', {
     params: { status },
