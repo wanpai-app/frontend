@@ -1,13 +1,11 @@
-import axios from 'axios'
+import axios from '@/utils/axiosInstance'
 import { useAuthStore } from '@/stores/auth'
-
-// 查詢訂單列表（可帶條件）
 
 export async function fetchOrders(filters = {}) {
   const authStore = useAuthStore()
   const token = authStore.token
 
-  const res = await axios.get('/api/orders', {
+  const res = await axios.get('/orders', {
     params: filters,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -17,38 +15,30 @@ export async function fetchOrders(filters = {}) {
   return res.data
 }
 
-// 查詢單一訂單（含明細）
 export async function fetchOrderDetail(orderId) {
-  const res = await axios.get(`/api/orders/${orderId}`)
+  const res = await axios.get(`/orders/${orderId}`)
   return res.data
 }
 
-// 建立新訂單
+// orderData 應包含 recipient, items 等欄位
 export async function createOrder(orderData) {
-  // orderData 結構範例：
-  // {
-  //   recipientName, recipientPhone, shippingAddress,
-  //   items: [{ productId, productName, productImage, price, quantity, subtotal }, ...]
-  // }
-  const res = await axios.post('/api/orders', orderData)
+  const res = await axios.post('/orders', orderData)
   return res.data
 }
 
-// 更新訂單狀態（如出貨、取消）
 export async function updateOrder(orderId, updateData) {
-  const res = await axios.put(`/api/orders/${orderId}`, updateData)
+  const res = await axios.put(`/orders/${orderId}`, updateData)
   return res.data
 }
 
-// 軟刪除訂單
 export async function deleteOrder(orderId) {
-  const res = await axios.delete(`/api/orders/${orderId}`)
+  const res = await axios.delete(`/orders/${orderId}`)
   return res.data
 }
 
 export function calculateOrdersWithTotal(orders) {
   return orders.map((order) => {
-    const items = order.items || [] // 如果沒有 items 就給空陣列
+    const items = order.items || []
     const total = items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
