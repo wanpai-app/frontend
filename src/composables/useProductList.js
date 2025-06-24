@@ -1,4 +1,4 @@
-import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import axios from '@/utils/axiosInstance'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchFilterData } from '@/api/product'
@@ -7,9 +7,16 @@ export function useProductList() {
   const route = useRoute()
   const router = useRouter()
 
+  const keyword = computed(() => route.query.keyword || '')
+  const isSearching = computed(() => keyword.value.trim().length > 0)
+
   const categories = ref([])
   const allCategories = computed(() => ['全部', ...categories.value])
   const itemsPerPage = 20
+
+  const isLoading = ref(false)
+  const hasLoadedOnce = ref(false)
+
   const loadFilterData = async () => {
     try {
       const { series } = await fetchFilterData()
@@ -28,7 +35,6 @@ export function useProductList() {
     },
   })
 
-  const keyword = computed(() => route.query.keyword || '')
   const currentPage = computed({
     get: () => parseInt(route.query.page, 10) || 1,
     set: (val) => {
@@ -42,17 +48,25 @@ export function useProductList() {
     () => route.query.keyword,
     async (val) => {
       if (!val) return
-      await nextTick()
-      productSection.value?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      })
+
+      if (route.query.category && route.query.category !== '全部') {
+        router.push({
+          query: {
+            ...route.query,
+            category: '全部',
+            page: 1,
+          },
+        })
+      }
     }
   )
 
   const products = ref([])
 
   const loadProductsByCategory = async (category) => {
+    products.value = []
+    isLoading.value = true
+
     try {
       if (category === '全部') {
         const res = await axios.get('/products')
@@ -65,12 +79,15 @@ export function useProductList() {
       }
     } catch {
       products.value = []
+    } finally {
+      isLoading.value = false
+      hasLoadedOnce.value = true
     }
   }
 
   onMounted(async () => {
     await loadFilterData()
-    loadProductsByCategory(activeCategory.value)
+    await loadProductsByCategory(activeCategory.value)
   })
 
   watch(
@@ -84,13 +101,11 @@ export function useProductList() {
 
   const filteredProducts = computed(() => {
     let result = products.value
-
     if (keyword.value.trim().length >= 1) {
       result = result.filter((p) =>
         p.name.toLowerCase().includes(keyword.value.toLowerCase())
       )
     }
-
     return result
   })
 
@@ -137,6 +152,7 @@ export function useProductList() {
 
   return {
     keyword,
+    isSearching,
     activeCategory,
     allCategories,
     products,
@@ -147,5 +163,7 @@ export function useProductList() {
     goToPage,
     pageButtons,
     productSection,
+    isLoading,
+    hasLoadedOnce,
   }
 }
