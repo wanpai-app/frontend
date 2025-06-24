@@ -1,31 +1,37 @@
 <script setup>
-  import { ref, onMounted } from 'vue'
-  import BannerCarousel from '@/components/BannerCarousel.vue'
-  import ProductListPage from '@/views/ProductListPage.vue'
-  import Toast from 'primevue/toast'
-  import SplashAnimation from '@/components/SplashAnimation.vue'
-  import Button from 'primevue/button'
+import { ref, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import BannerCarousel from '@/components/BannerCarousel.vue'
+import ProductListPage from '@/views/ProductListPage.vue'
+import Toast from 'primevue/toast'
+import SplashAnimation from '@/components/SplashAnimation.vue'
+import Button from 'primevue/button'
 
-  const showSplash = ref(false)
 
-  onMounted(() => {
-    const hasVisited = sessionStorage.getItem('wanpai-has-visited')
-    if (!hasVisited) {
-      showSplash.value = true
-      sessionStorage.setItem('wanpai-has-visited', 'true')
-    }
+const route = useRoute()
+const keyword = computed(() => route.query.keyword || '')
+const isSearching = computed(() => keyword.value.trim().length > 0)
+const showSplash = ref(false)
+
+onMounted(() => {
+  const hasVisited = sessionStorage.getItem('wanpai-has-visited')
+  if (!hasVisited) {
+    showSplash.value = true
+    sessionStorage.setItem('wanpai-has-visited', 'true')
+  }
+})
+
+const hideSplash = () => {
+  showSplash.value = false
+}
+
+const scrollToBanner = () => {
+  window.scrollTo({
+    top: 525,
+    behavior: 'smooth',
   })
+}
 
-  const hideSplash = () => {
-    showSplash.value = false
-  }
-
-  const scrollToBanner = () => {
-    window.scrollTo({
-      top: 525,
-      behavior: 'smooth',
-    })
-  }
 </script>
 
 <template>
@@ -33,9 +39,7 @@
   <SplashAnimation :show="showSplash" @hide="hideSplash" />
 
   <div v-if="!showSplash">
-    <section
-      class="relative bg-gradient-to-r from-yellow-50 to-yellow-100 py-28 mb-8 mt-0"
-    >
+    <section class="relative bg-gradient-to-r from-yellow-50 to-yellow-100 py-28 mb-8 mt-0">
       <div class="max-w-screen-xl mx-auto px-4">
         <div class="text-center space-y-6">
           <h2 class="text-4xl md:text-6xl font-bold text-gray-800">
@@ -46,24 +50,26 @@
             探索精彩的模型玩具世界，找到屬於你的收藏寶藏
           </p>
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              label="開始購物"
-              size="large"
+            <Button label="開始購物" size="large"
               class="px-8 py-3 text-lg bg-yellow-500 hover:bg-yellow-600 border-yellow-500 hover:border-yellow-600"
-              @click="scrollToBanner"
-            />
-            <Button
-              label="了解更多"
-              size="large"
-              outlined
-              class="px-8 py-3 text-lg border-yellow-500 text-yellow-600 hover:bg-yellow-50"
-            />
+              @click="scrollToBanner" />
+            <Button label="了解更多" size="large" outlined
+              class="px-8 py-3 text-lg border-yellow-500 text-yellow-600 hover:bg-yellow-50" />
           </div>
         </div>
       </div>
     </section>
 
-    <!-- <section class="py-16 bg-white">
+    <div id="banner-section">
+      <BannerCarousel v-if="!isSearching" />
+    </div>
+
+    <ProductListPage />
+  </div>
+</template>
+
+
+<!-- <section class="py-16 bg-white">
       <div class="max-w-screen-xl mx-auto px-4">
         <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">熱門分類</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -97,9 +103,3 @@
         </div>
       </div>
     </section> -->
-    <div id="banner-section">
-      <BannerCarousel />
-    </div>
-    <ProductListPage />
-  </div>
-</template>
