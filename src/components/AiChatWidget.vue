@@ -8,11 +8,10 @@ const currentMessage = ref('')
 const isLoading = ref(false)
 const messagesContainer = ref(null)
 const messageInput = ref(null)
-
 const messages = reactive([
   {
     id: 1,
-    text: '你好！我是玩派小助手，有什麼可以為您服務的嗎？',
+    text: '你好！我是玩派小助手，有什麼我可以為你推薦的系列商品嗎？',
     isUser: false,
     timestamp: new Date()
   }
@@ -71,7 +70,6 @@ const sendMessage = async () => {
 
     messages.push(aiMessage)
   } catch (error) {
-    console.error('AI聊天錯誤:', error)
     const errorMessage = {
       id: Date.now() + 1,
       text: '抱歉，服務暫時不可用，請稍後再試。',
@@ -90,6 +88,7 @@ const sendMessage = async () => {
     }
   }
 }
+
 
 
 const scrollToBottom = () => {
