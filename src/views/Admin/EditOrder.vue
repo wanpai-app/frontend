@@ -23,7 +23,7 @@
   const statusOptions = ref([
     { title: '已付款', value: 'paid' },
     { title: '已出貨', value: 'shipped' },
-    { title: '已完成', value: 'completed' },
+    { title: '已完成', value: 'delivered' },
     { title: '已取消', value: 'cancelled' },
   ])
 
@@ -94,6 +94,15 @@
     form.value.recipientPhone = data.recipientPhone
     form.value.shippingAddress = data.shippingAddress
     form.value.status = data.status
+
+    if (data.items && Array.isArray(data.items)) {
+      orderItems.value = data.items.map((item) => ({
+        img: item.productImage || item.image,
+        name: item.name || item.productName,
+        quantity: item.quantity,
+        unitPrice: `$${item.price || item.unitPrice}`,
+      }))
+    }
   })
 </script>
 <template>
