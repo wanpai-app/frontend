@@ -18,12 +18,12 @@ const createOrder = async (orderData) => {
 }
 
 const updateOrder = async (orderId, updateData) => {
-  const res = await axios.put(`/orders/${orderId}`, updateData)
+  const res = await axios.put(`/admin/orders/${orderId}`, updateData)
   return res.data
 }
 
 const deleteOrder = async (orderId) => {
-  const res = await axios.delete(`/orders/${orderId}`)
+  const res = await axios.delete(`/admin/orders/${orderId}`)
   return res.data
 }
 
