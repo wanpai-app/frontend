@@ -46,6 +46,7 @@ const sendMessage = async () => {
   const messageText = currentMessage.value
   currentMessage.value = ''
   isLoading.value = true
+  let aiMessageIndex
 
   await nextTick()
   scrollToBottom()
@@ -69,7 +70,10 @@ const sendMessage = async () => {
     }
 
     messages.push(aiMessage)
+    
+    aiMessageIndex = messages.length - 1
   } catch (error) {
+    console.error('AI聊天錯誤:', error)
     const errorMessage = {
       id: Date.now() + 1,
       text: '抱歉，服務暫時不可用，請稍後再試。',
@@ -77,13 +81,21 @@ const sendMessage = async () => {
       timestamp: new Date()
     }
     messages.push(errorMessage)
+    
+    aiMessageIndex = messages.length - 1
   } finally {
     isLoading.value = false
     await nextTick()
-    // 滾動到底部
-    scrollToBottom()
+
+    if (typeof aiMessageIndex !== 'undefined') {
+      setTimeout(() => {
+        scrollToMessage(aiMessageIndex)
+      }, 100)
+    } else {
+      scrollToBottom()
+    }
+
     // AI回答完成後自動聚焦回input框，方便連續提問
-    
     if (messageInput.value) {
       messageInput.value.focus()
     }
@@ -98,29 +110,15 @@ const scrollToBottom = () => {
   }
 }
 
-// 滾動到最後一個用戶問題的上方
-const scrollToUserQuestion = () => {
-  if (!messagesContainer.value) return
-
-  // 找到最後一個用戶訊息
-  const userMessages = messages.filter(msg => msg.isUser)
-  if (userMessages.length === 0) return
-
-  const lastUserMessage = userMessages[userMessages.length - 1]
-  const lastUserMessageIndex = messages.findIndex(msg => msg.id === lastUserMessage.id)
-
-  if (lastUserMessageIndex === -1) return
-
-  // 獲取聊天容器內的所有訊息元素
-  const messageElements = messagesContainer.value.children
-  const targetMessageElement = messageElements[lastUserMessageIndex]
-
-  if (targetMessageElement) {
-    // 計算滾動位置：訊息位置往上偏移一些空間
-    const elementTop = targetMessageElement.offsetTop
-    const offsetFromTop = 60 // 往上偏移60px，讓用戶問題顯示在視窗上方
-
-    messagesContainer.value.scrollTop = Math.max(0, elementTop - offsetFromTop)
+const scrollToMessage = (messageIndex) => {
+  if (messagesContainer.value && messageIndex >= 0) {
+    const messageElements = messagesContainer.value.querySelectorAll('.message-item')
+    if (messageElements[messageIndex]) {
+      messageElements[messageIndex].scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      })
+    }
   }
 }
 
@@ -138,10 +136,18 @@ const sanitizeHtml = (html) => {
 
   // 只過濾掉危險的標籤，保留 br 和 a 標籤
   return html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // 移除 script 標籤
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '') // 移除 iframe 標籤
-    .replace(/javascript:/gi, '') // 移除 javascript: 協議
-    .replace(/on\w+\s*=/gi, '') // 移除事件處理器 (onclick, onload 等)
+    .replace(/<br\s*\/?>/gi, '<br>')
+    .replace(/<(?!br\s*\/?>|a\s+[^>]*href[^>]*>|\/a>)[^>]+>/gi, '')
+}
+
+const handleLinkClick = (event) => {
+  if (event.target.tagName === 'A') {
+    event.preventDefault()
+    const href = event.target.getAttribute('href')
+    if (href) {
+      window.open(href, '_blank')
+    }
+  }
 }
 
 onMounted(() => {
@@ -152,9 +158,10 @@ onMounted(() => {
 <template>
   <div class="fixed bottom-5 right-5 z-[1000] font-sans sm:bottom-5 sm:right-5">
 
-    <div v-if="!isExpanded" @click="toggleChat"
-      class="flex items-center gap-2 bg-yellow-500 text-white px-5 py-3 rounded-full cursor-pointer shadow-lg transition-all duration-300 text-sm font-medium hover:-translate-y-0.5 hover:shadow-xl">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div v-if="!isExpanded" @click="toggleChat"
+      class="flex items-center gap-2 bg-yellow-500 text-white py-3 px-5 rounded-full cursor-pointer shadow-lg shadow-yellow-500/40 transition-all duration-300 ease-in-out text-sm font-medium hover:-translate-y-0.5 hover:shadow-xl hover:shadow-yellow-500/60 md:gap-2 sm:gap-1 sm:px-3">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+        class="flex-shrink-0">
         <path
           d="M20 2H4C2.9 2 2 2.9 2 4V16C2 17.1 2.9 18 4 18H6L10 22L14 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z"
           stroke="currentColor" stroke-width="2" fill="none" />
@@ -178,16 +185,12 @@ onMounted(() => {
         </button>
       </div>
 
-
-      <div class="flex-1 overflow-y-auto p-4 bg-slate-50" ref="messagesContainer">
-        <div v-for="message in messages" :key="message.id"
-          :class="['mb-4 animate-in fade-in slide-in-from-bottom-1 duration-300', message.isUser ? 'flex flex-col items-end' : 'flex flex-col items-start']">
-          <div :class="[
-            'max-w-[80%] px-4 py-3 rounded-[18px] text-sm leading-relaxed',
-            message.isUser
-              ? 'bg-yellow-500 text-white rounded-br-sm'
-              : 'bg-white text-gray-700 border border-gray-200 rounded-bl-sm'
-          ]" v-html="sanitizeHtml(message.text)">
+      <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 bg-slate-50">
+        <div v-for="(message) in messages" :key="message.id"
+          :class="['mb-4 animate-in fade-in slide-in-from-bottom-1 duration-300 message-item', message.isUser ? 'flex flex-col items-end' : 'flex flex-col items-start']">
+          <div class="max-w-[80%] py-3 px-4 rounded-[18px] text-sm leading-relaxed"
+            :class="message.isUser ? 'bg-yellow-500 text-white rounded-br-sm' : 'bg-white text-gray-700 border border-gray-200 rounded-bl-sm'"
+            v-html="sanitizeHtml(message.text)" @click="handleLinkClick">
           </div>
           <div class="text-xs text-gray-400 mt-1 mx-2">
             {{ formatTime(message.timestamp) }}
@@ -196,7 +199,7 @@ onMounted(() => {
 
 
         <div v-if="isLoading"
-          class="mb-4 animate-in fade-in slide-in-from-bottom-1 duration-300 flex flex-col items-start">
+          class="mb-4 animate-in fade-in slide-in-from-bottom-1 duration-300 flex flex-col items-start message-item">
           <div
             class="max-w-[80%] px-4 py-3 rounded-[18px] text-sm leading-relaxed bg-white text-gray-700 border border-gray-200 rounded-bl-sm flex items-center gap-2">
             <div class="flex gap-1">

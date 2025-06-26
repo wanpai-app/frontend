@@ -104,9 +104,10 @@ const scrollToBanner = () => {
     <ProductListPage />
   </div>
 
-  <!-- AI 聊天組件 -->
+
   <AiChatWidget />
 </template>
+<<<<<<< HEAD
 
 <!-- 
 <section class="py-16 bg-white">
@@ -144,3 +145,5 @@ const scrollToBanner = () => {
   </div>
 </section> 
 -->
+=======
+>>>>>>> 7fc250d (fix: ci error)
