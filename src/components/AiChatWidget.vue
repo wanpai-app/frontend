@@ -80,9 +80,10 @@ const sendMessage = async () => {
   } finally {
     isLoading.value = false
     await nextTick()
-    // 滾動到用戶問題上方而不是聊天框底部
-    scrollToUserQuestion()
+    // 滾動到底部
+    scrollToBottom()
     // AI回答完成後自動聚焦回input框，方便連續提問
+    
     if (messageInput.value) {
       messageInput.value.focus()
     }
@@ -111,7 +112,7 @@ const scrollToUserQuestion = () => {
   if (lastUserMessageIndex === -1) return
 
   // 獲取聊天容器內的所有訊息元素
-  const messageElements = messagesContainer.value.querySelectorAll('.message')
+  const messageElements = messagesContainer.value.children
   const targetMessageElement = messageElements[lastUserMessageIndex]
 
   if (targetMessageElement) {
@@ -162,19 +163,6 @@ onMounted(() => {
       <span class="hidden sm:inline">玩派小助手</span>
       <span class="sm:hidden">小助手</span>
     </div>
-
-    <div v-if="isExpanded"
-      class="bg-white rounded-xl w-80 h-[500px] shadow-2xl flex flex-col overflow-hidden animate-slide-up">
-      <div class="bg-yellow-500 text-white py-4 px-5 flex justify-between items-center">
-        <h3 class="m-0 text-base font-semibold">玩派小助手</h3>
-        <button @click="toggleChat"
-          class="bg-white/20 border border-white/30 text-white cursor-pointer p-1.5 rounded-md transition-all duration-200 ease-in-out text-base font-bold w-7 h-7 flex items-center justify-center hover:bg-white/30 hover:border-white/50 hover:scale-110">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-            <path
-              d="M8 6.293l2.146-2.147a.5.5 0 01.708.708L8.707 7l2.147 2.146a.5.5 0 01-.708.708L8 7.707l-2.146 2.147a.5.5 0 01-.708-.708L7.293 8 5.146 5.854a.5.5 0 01.708-.708L8 6.293z" />
-          </svg>
-        </button>
-      </div>
 
     <div v-if="isExpanded"
       class="bg-white rounded-xl w-[350px] h-[500px] shadow-xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 fade-in duration-300 max-sm:w-[calc(100vw-2.5rem)] max-sm:h-[calc(100vh-6.25rem)]">
