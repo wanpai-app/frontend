@@ -224,18 +224,22 @@ function handleCartClick() {
             {{ cart.items.length }}
           </span>
         </div>
-        <div v-if="authStore.isLoggedIn"
+        <div
+          v-if="authStore.isLoggedIn"
           class="relative cursor-pointer text-gray-800 hover:text-emerald-600 text-base font-medium flex items-center"
           @click="
             () => {
               visible = false
               router.push('/notifications')
             }
-          ">
+          "
+        >
           <i class="pi pi-comment mr-2"></i>
           通知中心
-          <span v-if="notificationStore.totalUnread > 0"
-            class="ml-auto bg-red-500 text-white text-xs w-2.5 h-2.5 rounded-full border-2 border-white"></span>
+          <span
+            v-if="notificationStore.totalUnread > 0"
+            class="ml-auto bg-red-500 text-white text-xs w-2.5 h-2.5 rounded-full border-2 border-white"
+          ></span>
         </div>
 
         <RouterLink v-if="authStore.isLoggedIn" to="/notifications"

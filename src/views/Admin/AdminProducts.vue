@@ -37,6 +37,11 @@
     },
   ])
 
+  const handleTabChange = async (tab) => {
+    const res = await fetchAllProducts(tab.value)
+    productValue.value = res
+  }
+
   const productValue = ref([])
 
   const goCreateProduct = () => {
