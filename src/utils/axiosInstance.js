@@ -49,7 +49,7 @@ const handleLogout = () => {
     setTimeout(() => {
       window.location.href = '/authform'
     }, 1500)
-  } catch (error) {
+  } catch {
     window.location.href = '/authform'
   }
 }
