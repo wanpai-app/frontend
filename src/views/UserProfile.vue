@@ -167,29 +167,29 @@
           </div>
           <span class="font-bold text-xl text-gray-800">我的帳戶</span>
         </div>
-        <nav class="space-y-2">
-          <RouterLink
-            to="/profile"
-            class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-md border-l-4 border-primary-600"
-          >
-            <i class="pi pi-user"></i>
-            個人資料
-          </RouterLink>
-          <RouterLink
-            to="/orders"
-            class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
-          >
-            <i class="pi pi-shopping-cart"></i>
-            訂單中心
-          </RouterLink>
-          <RouterLink
-            to="/favorites"
-            class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
-          >
-            <i class="pi pi-heart"></i>
-            收藏清單
-          </RouterLink>
-        </nav>
+          <nav class="space-y-2">
+            <RouterLink
+              to="/userprofile"
+              class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-md border-l-4 border-primary-600"
+            >
+              <i class="pi pi-user"></i>
+              個人資料
+            </RouterLink>
+            <RouterLink
+              to="/orders"
+              class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              <i class="pi pi-shopping-cart"></i>
+              訂單中心
+            </RouterLink>
+            <RouterLink
+              to="/favorites"
+              class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors"
+            >
+              <i class="pi pi-heart"></i>
+              收藏清單
+            </RouterLink>
+          </nav>
       </aside>
 
       <section class="flex-1 bg-white rounded-xl shadow p-6">

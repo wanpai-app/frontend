@@ -28,7 +28,6 @@ const updateProduct = async (id, productData) => {
       'Content-Type': 'application/json',
     },
   })
-
   return res.data
 }
 

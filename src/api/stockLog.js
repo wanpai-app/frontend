@@ -4,6 +4,12 @@ const fetchStockLogsByProduct = async (productId) => {
   const res = await axios.get(`/admin/products/${productId}/stocklogs`)
   return res.data
 }
+
+const fetchAllStockLogs = async (params = {}) => {
+  const res = await axios.get('/admin/stocklogs', { params })
+  return res.data
+}
+
 const createStockLog = async (productId, stockLogData) => {
   const res = await axios.post(
     `/admin/products/${productId}/stocklogs`,
@@ -12,4 +18,4 @@ const createStockLog = async (productId, stockLogData) => {
   return res.data
 }
 
-export { fetchStockLogsByProduct, createStockLog }
+export { fetchStockLogsByProduct, fetchAllStockLogs, createStockLog }
