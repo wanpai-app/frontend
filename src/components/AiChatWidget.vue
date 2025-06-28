@@ -8,6 +8,7 @@ const currentMessage = ref('')
 const isLoading = ref(false)
 const messagesContainer = ref(null)
 const messageInput = ref(null)
+const isComposing = ref(false)
 const messages = reactive([
   {
     id: 1,
@@ -28,6 +29,23 @@ const toggleChat = () => {
         messageInput.value.focus()
       }
     })
+  }
+}
+
+// 處理輸入法狀態
+const handleCompositionStart = () => {
+  isComposing.value = true
+}
+
+const handleCompositionEnd = () => {
+  isComposing.value = false
+}
+
+// 處理 Enter 鍵，區分輸入法選詞和真正的發送
+const handleKeydown = (event) => {
+  if (event.key === 'Enter' && !isComposing.value) {
+    event.preventDefault()
+    sendMessage()
   }
 }
 
@@ -70,7 +88,7 @@ const sendMessage = async () => {
     }
 
     messages.push(aiMessage)
-    
+
     aiMessageIndex = messages.length - 1
   } catch (error) {
     error
@@ -81,7 +99,7 @@ const sendMessage = async () => {
       timestamp: new Date()
     }
     messages.push(errorMessage)
-    
+
     aiMessageIndex = messages.length - 1
   } finally {
     isLoading.value = false
@@ -158,7 +176,7 @@ onMounted(() => {
 <template>
   <div class="fixed bottom-5 right-5 z-[1000] font-sans sm:bottom-5 sm:right-5">
 
-        <div v-if="!isExpanded" @click="toggleChat"
+    <div v-if="!isExpanded" @click="toggleChat"
       class="flex items-center gap-2 bg-yellow-500 text-white py-3 px-5 rounded-full cursor-pointer shadow-lg shadow-yellow-500/40 transition-all duration-300 ease-in-out text-sm font-medium hover:-translate-y-0.5 hover:shadow-xl hover:shadow-yellow-500/60 md:gap-2 sm:gap-1 sm:px-3">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
         class="flex-shrink-0">
@@ -217,7 +235,8 @@ onMounted(() => {
 
       <div class="p-4 bg-white border-t border-gray-200">
         <div class="flex gap-2 items-center">
-          <input ref="messageInput" v-model="currentMessage" @keyup.enter="sendMessage" placeholder="輸入你的問題..."
+          <input ref="messageInput" v-model="currentMessage" @keydown="handleKeydown"
+            @compositionstart="handleCompositionStart" @compositionend="handleCompositionEnd" placeholder="輸入你的問題..."
             :disabled="isLoading"
             class="flex-1 px-4 py-3 border border-gray-300 rounded-full text-sm outline-none transition-colors duration-200 focus:border-yellow-500 disabled:bg-gray-100 disabled:cursor-not-allowed" />
           <button @click="sendMessage" :disabled="!currentMessage.trim() || isLoading"
