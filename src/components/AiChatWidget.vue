@@ -73,7 +73,7 @@ const sendMessage = async () => {
     
     aiMessageIndex = messages.length - 1
   } catch (error) {
-    console.error('AI聊天錯誤:', error)
+    error
     const errorMessage = {
       id: Date.now() + 1,
       text: '抱歉，服務暫時不可用，請稍後再試。',

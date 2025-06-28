@@ -284,7 +284,6 @@
             class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white z-10"
           ></span>
         </RouterLink>
-        >>>>>>> e261f82 (fix/searchkeywordresetandsplash)
 
         <div v-if="!authStore.isLoggedIn">
           <RouterLink to="/authform" @click="visible = false">
