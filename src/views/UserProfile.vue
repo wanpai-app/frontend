@@ -158,7 +158,7 @@
     "
   >
     <div class="max-w-6xl mx-auto flex gap-6 items-start">
-      <aside class="w-64 bg-white rounded-xl shadow p-6">
+      <aside class="w-64 bg-white rounded-xl shadow p-6 hidden lg:block">
         <div class="mb-6 flex items-center gap-3">
           <div
             class="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center"

@@ -129,7 +129,7 @@
   >
     <Toast />
     <div class="max-w-7xl mx-auto flex gap-6 items-start px-4 py-10">
-      <aside class="w-64 ml-11 -mt-2">
+      <aside class="w-64 ml-11 -mt-2 hidden lg:block">
         <UserSidebar />
       </aside>
 
