@@ -4,19 +4,15 @@
   import Navbar from '@/components/layout/NavBar.vue'
   import Footer from '@/components/layout/Footer.vue'
   import { useToast } from 'primevue/usetoast'
-  import { useAuthStore } from '@/stores/auth'
   import Toast from 'primevue/toast'
   import FloatingBubble from '@/components/FloatingBubble.vue'
   import BubbleBackground from '@/components/BubbleBackground.vue'
+  import { setGlobalToast } from '@/utils/toast'
 
   const toast = useToast()
-  const authStore = useAuthStore()
+  setGlobalToast(toast)
   const route = useRoute()
   const isAdmin = computed(() => route.path.startsWith('/admin'))
-
-  onMounted(() => {
-    authStore.setToastHandler(toast)
-  })
 
   const bubbleRef = ref(null)
 

@@ -8,7 +8,7 @@
   import { useAuthStore } from '@/stores/auth'
   import { useNotificationStore } from '@/stores/notifications'
   import ProductSearchBar from '@/components/ProductSearchBar.vue'
-  import { useToast } from 'primevue/usetoast'
+  import { showToast } from '@/utils/toast'
 
   const visible = ref(false)
   const cart = useCartStore()
@@ -16,7 +16,6 @@
   const router = useRouter()
   const authStore = useAuthStore()
   const notificationStore = useNotificationStore()
-  const toast = useToast()
   const searchInput = ref(route.query.keyword || '')
 
   function handleHomeClick(e) {
@@ -68,11 +67,10 @@
     (isLoggedIn) => {
       if (isLoggedIn) {
         cart.fetchCart().catch(() => {
-          toast.add({
+          showToast({
             severity: 'warn',
             summary: '載入失敗',
             detail: '購物車資料載入失敗，請重新整理頁面',
-            life: 3000,
           })
         })
       } else {
@@ -85,11 +83,10 @@
   onMounted(() => {
     if (authStore.isLoggedIn) {
       cart.fetchCart().catch(() => {
-        toast.add({
+        showToast({
           severity: 'warn',
           summary: '載入失敗',
           detail: '購物車資料載入失敗，請重新整理頁面',
-          life: 3000,
         })
       })
     }
@@ -127,12 +124,10 @@
 
   function handleCartClick() {
     if (!authStore.isLoggedIn) {
-      toast.add({
+      showToast({
         severity: 'warn',
         summary: '請先登入',
         detail: '請先登入會員再查看購物車！',
-        life: 3000,
-        position: 'top-right',
       })
       return
     }

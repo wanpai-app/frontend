@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { showToast } from '@/utils/toast'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -114,27 +115,22 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    if (authStore.showToast) {
-      authStore.showToast.add({
-        severity: 'warn',
-        summary: '需要登入',
-        detail: '請先登入才能訪問此頁面',
-        life: 3000,
-      })
-    }
+    showToast({
+      severity: 'warn',
+      summary: '需要登入',
+      detail: '請先登入才能訪問此頁面',
+    })
     next('/authform')
     return
   }
 
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
-    if (authStore.showToast) {
-      authStore.showToast.add({
-        severity: 'error',
-        summary: '權限不足',
-        detail: '需要管理員權限才能訪問此頁面',
-        life: 3000,
-      })
-    }
+    showToast({
+      severity: 'error',
+      summary: '權限不足',
+      detail: '需要管理員權限才能訪問此頁面',
+    })
+
     next('/')
     return
   }
