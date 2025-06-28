@@ -99,7 +99,7 @@
     "
   >
     <div class="flex max-w-7xl mx-auto px-4 py-8 gap-6">
-      <aside class="w-64 ml-11">
+      <aside class="w-64 ml-11 hidden lg:block">
         <UserSideBar />
       </aside>
 
