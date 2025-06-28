@@ -6,7 +6,6 @@ export const useAuthStore = defineStore('auth', {
     isLoggedIn: false,
     token: null,
     role: null,
-    showToast: null,
   }),
 
   getters: {
@@ -16,10 +15,6 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    setToastHandler(toastFn) {
-      this.showToast = toastFn
-    },
-
     initAuth() {
       const token = localStorage.getItem('token')
       const role = localStorage.getItem('role')

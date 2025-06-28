@@ -1,6 +1,7 @@
 import axios from '@/utils/axiosInstance'
+import { showToast } from '@/utils/toast'
 
-export async function createEcpayOrder(payload, toast) {
+export async function createEcpayOrder(payload) {
   try {
     const response = await axios.post('/create-order', payload)
 
@@ -14,36 +15,30 @@ export async function createEcpayOrder(payload, toast) {
         form.submit()
         return { success: true }
       } else {
-        if (toast) {
-          toast.add({
-            severity: 'error',
-            summary: '警告',
-            detail: '結帳失敗：無法找到綠界表單。',
-            life: 3000,
-          })
-        }
+        showToast({
+          severity: 'error',
+          summary: '警告',
+          detail: '結帳失敗：無法找到綠界表單。',
+        })
+
         return { success: false, message: '結帳失敗：無法找到綠界表單。' }
       }
     } else {
-      if (toast) {
-        toast.add({
-          severity: 'error',
-          summary: '警告',
-          detail: '結帳失敗：後端回應格式不正確。',
-          life: 3000,
-        })
-      }
+      showToast({
+        severity: 'error',
+        summary: '警告',
+        detail: '結帳失敗：後端回應格式不正確。',
+      })
+
       return { success: false, message: '結帳失敗：後端回應格式不正確。' }
     }
   } catch {
-    if (toast) {
-      toast.add({
-        severity: 'error',
-        summary: '警告',
-        detail: '結帳失敗，請稍後再試。',
-        life: 3000,
-      })
-    }
+    showToast({
+      severity: 'error',
+      summary: '警告',
+      detail: '結帳失敗，請稍後再試。',
+    })
+
     return { success: false, message: '結帳失敗，請稍後再試。' }
   }
 }
