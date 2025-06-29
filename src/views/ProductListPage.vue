@@ -55,7 +55,7 @@
       🔍 搜尋「{{ keyword }}」的結果：
     </p>
 
-    <div class="lg:hidden mt-4">
+    <div class="hidden lg:block flex-shrink-0">
       <BrandIPSidebar v-model:activeIpTag="activeIpTag" />
     </div>
 
