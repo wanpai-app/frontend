@@ -1,16 +1,20 @@
 # WanPai 玩派 - 前端專案
 
 ## 簡介
+
 本專案為「WanPai 玩派」模型電商網站的前端程式碼庫。採用 Vue 3、Tailwind CSS 及 PrimeVue 技術，透過 Vite 架設開發環境，並串接基於 Express 的 RESTful API。功能涵蓋商品瀏覽、搜尋、購物流程與後台管理系統，提供完整的使用與管理體驗。
 
 ## 安裝步驟
-1. Clone 此 Repository 
+
+1. Clone 此 Repository
+
 ```bash
  git clone https://github.com/wanpai-app/frontend.git
  cd frontend
 ```
 
 2. 安裝 npm 相關套件
+
 ```bash
  npm install
 ```
@@ -22,12 +26,16 @@
 VITE_API_BASE_URL=https://your-real-api.com/api
 ```
 
-4. 啟動開發伺服器  
+4. 啟動開發伺服器
+
 ```bash
  npm run dev
 ```
+
 ## 技術使用
+
 本專案使用了以下技術和工具：
+
 - Vue 3 + Vite
 - Tailwind CSS
 - PrimeVue
@@ -68,4 +76,5 @@ VITE_API_BASE_URL=https://your-real-api.com/api
   - 技術簡報製作
 
 ## 其他
+
 本專案為課程小組專案，僅供學術用途。
