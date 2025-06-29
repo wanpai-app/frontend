@@ -16,7 +16,7 @@
   const router = useRouter()
 
   const searchOrderId = ref('')
-  const selectedDateRange = ref('') // ✅ 統一為空字串初始值（與下拉選單匹配）
+  const selectedDateRange = ref('')
   const expandedRows = ref([])
   const errorMsg = ref('')
   const orders = ref([])
@@ -41,8 +41,12 @@
       if (selectedDateRange.value) {
         const today = new Date()
         const days = parseInt(selectedDateRange.value)
-        const startDate = new Date(today.getTime() - days * 86400000)
-        const endDate = today
+
+        const startDate = new Date(today.getTime() - (days - 1) * 86400000)
+        startDate.setHours(0, 0, 0, 0)
+
+        const endDate = new Date(today)
+        endDate.setHours(23, 59, 59, 999)
 
         filters.startDate = startDate.toISOString()
         filters.endDate = endDate.toISOString()
@@ -88,7 +92,10 @@
           <div
             class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4"
           >
-            <h2 class="text-3xl font-bold mt-8">我的訂單</h2>
+            <h2 class="text-2xl md:text-3xl font-bold mt-4 md:mt-8">
+              我的訂單
+            </h2>
+
             <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
               <div class="flex flex-col w-full md:w-[260px]">
                 <label for="orderId" class="text-sm mb-1">訂單搜尋</label>
@@ -110,7 +117,7 @@
                   optionValue="value"
                   placeholder="全部時間"
                   class="w-full"
-                ></Select>
+                />
               </div>
             </div>
           </div>
@@ -123,14 +130,14 @@
           </div>
 
           <div
-            class="rounded-xl shadow border border-gray-200 overflow-hidden bg-white"
+            class="rounded-xl shadow border border-gray-200 overflow-x-auto bg-white"
           >
             <DataTable
               v-model:expandedRows="expandedRows"
               :value="ordersWithTotal"
               dataKey="id"
               expandableRows
-              tableStyle="width: 100%"
+              class="min-w-[720px]"
               :pt="{ bodyRow: { class: 'h-8' } }"
             >
               <Column expander />
