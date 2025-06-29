@@ -32,7 +32,6 @@ const hideSplash = () => {
 <template>
   <Toast />
   <SplashAnimation :show="showSplash" @hide="hideSplash" />
-
   <div id="banner-section">
     <BannerCarousel v-if="!isSearching" />
   </div>
