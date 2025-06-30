@@ -55,7 +55,7 @@
       const data = await fetchOrders(filters)
       orders.value = data.map((order) => ({
         ...order,
-        statusText: statusMap[order.status] || order.status,
+        statusText: statusMap[order.status]
       }))
       errorMsg.value = ''
     } catch {
