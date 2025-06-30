@@ -393,13 +393,13 @@ onMounted(async () => {
         <div class="flex flex-col gap-2">
           <label for="username" class="font-bold">姓名</label>
           <InputText id="username" v-model="shippingForm.recipientName" aria-describedby="username-help"
-            class="w-lg p-2 outline rounded-lg" required="" />
+            class="w-lg p-2 outline rounded-lg max-w-full" required="" />
           <label for="cellphone" class="font-bold">手機號碼</label>
           <InputText id="cellphone" v-model="shippingForm.recipientPhone" aria-describedby="cellphone-help"
-            class="w-lg p-2 outline rounded-lg mg-1" required="" />
+            class="w-lg p-2 outline rounded-lg mg-1 max-w-full" required="" />
           <label for="address" class="font-bold">地址</label>
           <InputText id="address" v-model="shippingForm.shippingAddress" aria-describedby="address-help"
-            class="w-lg p-2 outline rounded-lg" required="" />
+            class="w-lg p-2 outline rounded-lg max-w-full" required="" />
         </div>
 
         <div class="flex justify-between items-center pt-2 border-t mt-4">
