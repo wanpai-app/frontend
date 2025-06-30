@@ -110,9 +110,7 @@
           <label class="font-semibold mb-2 block text-gray-700">訂單編號</label>
           <div class="text-lg text-gray-800 mb-1">{{ order.orderNumber }}</div>
           <span class="text-sm text-gray-500">
-            訂單成立日期：{{
-              order.createdAt?.slice(0, 10)
-            }}
+            訂單成立日期：{{ order.createdAt?.slice(0, 10) }}
           </span>
         </div>
         <div>
