@@ -16,6 +16,7 @@ import { useAuthStore } from '@/stores/auth'
 import Button from '@/volt/Button.vue'
 import InputText from 'primevue/inputtext'
 import { showToast } from '@/utils/toast'
+import axios from '@/utils/axiosInstance'
 
 const cart = useCartStore()
 const router = useRouter()
@@ -23,6 +24,7 @@ const authStore = useAuthStore()
 
 const selectedItems = ref([])
 const showShippingDetails = ref(false)
+const profileLoading = ref(false)
 
 const shippingForm = reactive({
   recipientName: '',
@@ -116,6 +118,27 @@ function toggleSelectAll(event) {
   }
 }
 
+  async function loadUserProfile() {
+    try {
+      profileLoading.value = true
+      const response = await axios.get('users/profile')
+      const profile = response.data
+      if (profile) {
+        shippingForm.recipientPhone = profile.phone || ''
+        shippingForm.shippingAddress = profile.address || ''
+      }
+    } catch {
+      showToast({
+      severity: 'error',
+      summary: '輸入錯誤',
+      detail: '收件人姓名不能為空，並至少輸入兩個中文字！',
+    })
+    } finally {
+      profileLoading.value = false
+    }
+  }
+
+
 async function ecpayCheckout() {
   if (!isRecipientNameValid.value) {
     showToast({
@@ -150,7 +173,7 @@ async function ecpayCheckout() {
       summary: '請先登入',
       detail: '請先登入會員再進行結帳！',
     })
-    router.push('/login')
+    router.push('/authform')
     return
   }
 
@@ -222,6 +245,7 @@ function contactDetails() {
     })
   } else {
     showShippingDetails.value = true
+    loadUserProfile()
     nextTick(() => {
       if (shippingDetailsMove.value) {
         shippingDetailsMove.value.scrollIntoView({ behavior: 'smooth' })
