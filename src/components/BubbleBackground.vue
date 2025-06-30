@@ -29,7 +29,7 @@
 </script>
 
 <template>
-  <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+  <div class="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
     <div
       v-for="b in bubbles"
       :key="b.id"
