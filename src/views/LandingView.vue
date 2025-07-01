@@ -2,6 +2,14 @@
   import { ref, onMounted } from 'vue'
   import axios from '@/utils/axiosInstance'
   import { useToast } from 'primevue/usetoast'
+  import { useRouter } from 'vue-router'
+  import ScrollIndicator from '@/components/ScrollIndicator.vue'
+  const router = useRouter()
+
+  function goToProducts() {
+    sessionStorage.setItem('wanpai_seen_splash', 'true')
+    router.push('/products')
+  }
 
   const toast = useToast()
   const isInView = ref(false)
@@ -55,12 +63,44 @@
       })
     }
   })
+  const scrollToAbout = () => {
+    const aboutSection = document.getElementById('xiaonan-section')
+    if (aboutSection) {
+      const offsetTop =
+        aboutSection.getBoundingClientRect().top + window.pageYOffset
+      const offset = offsetTop - 340
+
+      window.scrollTo({
+        top: offset,
+        behavior: 'smooth',
+      })
+    }
+  }
+  onMounted(() => {
+    sessionStorage.setItem('wanpai_seen_splash', 'true')
+
+    loadProducts()
+  })
+  async function loadProducts() {
+    try {
+      const res = await axios.get('/products')
+      const shuffled = res.data.sort(() => 0.5 - Math.random())
+      featuredProducts.value = shuffled.slice(0, 4)
+    } catch {
+      toast.add({
+        severity: 'warn',
+        summary: '載入失敗',
+        detail: '無法載入精選商品，請稍後再試',
+        life: 3000,
+      })
+    }
+  }
 </script>
 
 <template>
   <main class="bg-white text-gray-800 overflow-x-hidden">
     <section
-      class="relative bg-white px-6 pt-32 pb-32 md:pt-40 md:pb-40 md:-mt-40 md:top-30 lg:pt-60 lg:pb-60 overflow-hidden"
+      class="relative bg-white px-6 pt-10 pb-32 -mt-40 md:pt-20 md:-mt-16 md:pb-40 lg:pt-32 lg:pb-60 overflow-hidden"
     >
       <img
         src="@/assets/magicpattern-blob-1751124065159.png"
@@ -72,7 +112,7 @@
         v-if="showBlocks"
         src="@/assets/hero/BuildingBlocks.png"
         alt="積木屋"
-        class="absolute z-10 pop-in w-[1000px] top-[200px] left-40 2xl:left-[15%] 2xl:w-[1200px]"
+        class="absolute z-10 pop-in w-[1000px] top-[200px] left-10 md:left-40 2xl:left-[15%] 2xl:w-[1200px]"
       />
 
       <div
@@ -89,7 +129,7 @@
 
       <div
         v-if="showRobot"
-        class="hidden md:block absolute z-10 pop-in top-[15%] right-[70px] w-40 2xl:right-[10%] 2xl:w-[200px]"
+        class="hidden md:block absolute z-10 pop-in top-[15%] right-[70px] w-40 2xl md:right-[10%] md:w-[180px]"
         @animationend="animated.robot = true"
       >
         <img
@@ -101,7 +141,7 @@
 
       <div
         v-if="showDino"
-        class="hidden md:block absolute z-10 pop-in bottom-0 right-[120px] w-[330px] 2xl:right-[10%] 2xl:w-[400px]"
+        class="hidden md:block absolute z-10 pop-in bottom-20 right-[120px] w-[330px] 2xl:right-[10%] 2xl:w-[400px]"
         @animationend="animated.dino = true"
       >
         <img
@@ -112,22 +152,38 @@
       </div>
 
       <div
-        class="relative z-30 text-center space-y-6 max-w-[90%] md:max-w-3xl mx-auto pt-72 md:pt-[360px] pointer-events-auto md:bottom-50"
+        class="relative z-30 text-center space-y-6 max-w-[90%] mt-40 md:mt-0 md:max-w-3xl mx-auto pt-72 md:pt-[360px] pointer-events-auto md:bottom-50"
       >
-        <h1 class="text-3xl md:text-5xl font-bold text-gray-800 leading-tight">
-          尋找屬於你的命定玩具
-        </h1>
-        <p class="text-lg text-gray-600">玩派，陪你打造專屬的收藏宇宙</p>
-        <RouterLink
-          to="/products"
-          class="inline-block px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-full shadow-md transition mt-6"
+        <h1
+          class="text-7xl md:text-9xl font-extrabold text-gray-800 leading-tight"
         >
-          開始探索
-        </RouterLink>
+          玩派
+        </h1>
+
+        <p class="text-gray-800 text-2xl md:text-4xl font-extrabold md:-mt-8">
+          尋找屬於你的命定玩具
+        </p>
+        <p class="text-lg text-gray-600">陪你打造專屬的收藏宇宙</p>
+        <div class="mt-6 flex justify-center gap-4">
+          <button
+            @click="goToProducts"
+            class="px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-full shadow-md transition cursor-pointer"
+          >
+            開始探索
+          </button>
+
+          <button
+            class="px-6 py-3 bg-white text-yellow-500 border-2 border-yellow-400 hover:bg-yellow-100 font-semibold rounded-full shadow-md transition cursor-pointer"
+            @click="scrollToAbout"
+          >
+            關於玩派
+          </button>
+        </div>
       </div>
+      <ScrollIndicator />
     </section>
 
-    <section class="py-16 px-6 bg-white mt-3 md:mt-16">
+    <section class="py-16 px-6 bg-white -mt-10 md:mt-16">
       <h2 class="text-3xl font-bold text-center mb-10">精選玩具</h2>
       <div
         class="flex overflow-x-auto scrollbar-hide gap-6 items-stretch justify-cente max-w-6xl mx-auto px-2 min-h-[280px]"
@@ -138,7 +194,7 @@
           :to="`/products/${item.id}`"
           class="flex-shrink-0 w-64 bg-yellow-50 rounded-xl shadow p-4 flex flex-col justify-between hover:scale-105 transition-transform duration-300"
         >
-          <div class="flex flex-col items-center">
+          <div class="flex flex-col items-center cursor-pointer">
             <img
               :src="
                 item.coverImage ||
@@ -171,10 +227,12 @@
         class="relative z-10 max-w-7xl mx-auto flex flex-row gap-10 items-center h-full"
       >
         <div class="w-7/12 space-y-6 text-center">
-          <h2 class="text-4xl font-bold text-yellow-700 mt-[-30px]">
+          <h2
+            class="text-4xl md:text-5xl text-yellow-700 mt-[-60px] font-extrabold"
+          >
             關於玩派
           </h2>
-          <p class="text-1xl text-gray-700 leading-relaxed">
+          <p class="text-xl text-gray-700 leading-relaxed">
             我們不是賣玩具給小孩，
             <br />
             而是把玩具的快樂，還給大人。
@@ -252,7 +310,7 @@
           <p class="text-gray-700">尋找你的命定玩具，開始建立你的玩具宇宙。</p>
           <RouterLink
             to="/products"
-            class="inline-block mt-2 px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-full shadow-md transition"
+            class="inline-block mt-2 px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-full shadow-md transition cursor-pointer"
           >
             前往瀏覽商品
           </RouterLink>
@@ -269,8 +327,8 @@
           </h2>
           <p class="text-gray-700">註冊帳號，開始打造你的收藏清單 ✨</p>
           <RouterLink
-            to="/register"
-            class="inline-block mt-2 px-6 py-3 bg-white text-yellow-600 font-semibold rounded-full shadow-md hover:bg-yellow-100 transition"
+            to="/authform"
+            class="inline-block mt-2 px-6 py-3 bg-white text-yellow-600 font-semibold rounded-full shadow-md hover:bg-yellow-100 transition cursor-pointer"
           >
             立即註冊
           </RouterLink>

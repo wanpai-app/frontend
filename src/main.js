@@ -63,6 +63,20 @@ app.component('Toast', Toast)
 const authStore = useAuthStore()
 authStore.initAuth()
 
+// ✅ 最穩定的 splash 判斷邏輯：只在第一次進站 "/" 時觸發
+router.isReady().then(() => {
+  const seenSplash = sessionStorage.getItem('wanpai_seen_splash')
+  const currentPath = router.currentRoute.value.path
+
+  if (!seenSplash && currentPath === '/') {
+    sessionStorage.setItem('wanpai_seen_splash', 'true')
+    router.replace('/splash')
+  }
+
+  app.mount('#app')
+})
+
+// ✅ cleanup 動作仍保留
 router.afterEach(() => {
   document.body.style.overflow = 'auto'
   document.documentElement.style.overflow = 'auto'
@@ -75,8 +89,8 @@ router.afterEach(() => {
     previewWrapper.remove()
   }
 })
-app.mount('#app')
 
+// ✅ 套件樣式調整
 const toastStyle = document.createElement('style')
 toastStyle.textContent = `
 .p-toast {

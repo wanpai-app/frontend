@@ -6,25 +6,19 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'landing',
+      path: '/splash',
+      name: 'splash',
       component: () => import('../views/LandingView.vue'),
     },
     {
-      path: '/register',
-      name: 'register',
-      component: () => import('../views/AuthForm.vue'),
-    },
-
-    {
-      path: '/products',
-      name: 'productList',
-      component: () => import('../views/HomeView.vue'),
-    },
-    {
-      path: '/products',
-      name: 'productList',
+      path: '/',
+      name: 'landing',
       component: () => import('../views/ProductListPage.vue'),
+    },
+    {
+      path: '/products',
+      name: 'productList',
+      component: () => import('../views/MainProductPage.vue'),
     },
     {
       path: '/products/:id',
@@ -52,7 +46,6 @@ const router = createRouter({
           name: 'editProduct',
           component: () => import('@/views/Admin/EditProduct.vue'),
         },
-
         {
           path: 'orders',
           name: 'orders',
@@ -120,10 +113,25 @@ const router = createRouter({
       component: () => import('@/views/NotFound.vue'),
     },
   ],
+  scrollBehavior() {
+    return { top: 0 }
+  },
 })
-
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
+  const seenSplash = sessionStorage.getItem('wanpai_seen_splash')
+
+  if (to.path === '/' && seenSplash) {
+    return next('/products')
+  }
+
+  if (to.path === '/' && !seenSplash) {
+    return next()
+  }
+
+  if (!seenSplash && to.path !== '/') {
+    sessionStorage.setItem('wanpai_seen_splash', 'true')
+  }
 
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
     showToast({
@@ -131,8 +139,7 @@ router.beforeEach((to, from, next) => {
       summary: '需要登入',
       detail: '請先登入才能訪問此頁面',
     })
-    next('/authform')
-    return
+    return next('/authform')
   }
 
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
@@ -141,9 +148,7 @@ router.beforeEach((to, from, next) => {
       summary: '權限不足',
       detail: '需要管理員權限才能訪問此頁面',
     })
-
-    next('/')
-    return
+    return next('/')
   }
 
   next()
