@@ -91,8 +91,10 @@ export function useProductList() {
         products.value = []
         isLoading.value = true
         try {
-          const res = await axios.get('/products')
-          products.value = res.data
+          const res = await axios.get('/products', {
+            params: { limit: 200 }
+          })
+          products.value = res.data?.data || res.data || []
         } catch {
           products.value = []
         } finally {
@@ -116,14 +118,16 @@ export function useProductList() {
 
   const products = ref([])
 
-  const loadProductsByCategory = async (category) => {
+  const loadProductsByCategory = async (category, page = 1) => {
     products.value = []
     isLoading.value = true
 
     try {
       if (category === '全部') {
-        const res = await axios.get('/products')
-        products.value = res.data
+        const res = await axios.get('/products', {
+          params: { page, limit: 200 }
+        })
+        products.value = res.data?.data || res.data || []
       } else {
         const res = await axios.get('/tags/filterByTagnames', {
           params: { tagname: category },
@@ -138,7 +142,7 @@ export function useProductList() {
     }
   }
 
-  const loadProductsByIpTag = async (ipTag) => {
+  const loadProductsByIpTag = async (ipTag, page = 1) => {
     products.value = []
     isLoading.value = true
 
@@ -149,8 +153,10 @@ export function useProductList() {
         })
         products.value = res.data.products || []
       } else {
-        const res = await axios.get('/products')
-        products.value = res.data
+        const res = await axios.get('/products', {
+          params: { page, limit: 200 }
+        })
+        products.value = res.data?.data || res.data || []
       }
     } catch {
       products.value = []

@@ -44,14 +44,51 @@
     },
   ])
   const productValue = ref([])
+  const pagination = ref({
+    currentPage: 1,
+    totalPages: 0,
+    totalCount: 0,
+    limit: 20,
+    hasNextPage: false,
+    hasPreviousPage: false
+  })
+  const currentStatus = ref('all')
+
+  const loadProducts = async (status = 'all', page = 1) => {
+    isloading.value = true
+    try {
+      const res = await fetchAllProducts(status, page, pagination.value.limit)
+      productValue.value = res.data || []
+      pagination.value = res.pagination || {
+        currentPage: 1,
+        totalPages: 0,
+        totalCount: 0,
+        limit: 20,
+        hasNextPage: false,
+        hasPreviousPage: false
+      }
+      currentStatus.value = status
+    } catch {
+      productValue.value = []
+    } finally {
+      isloading.value = false
+    }
+  }
+
+  const handleTabChange = async (tab) => {
+    await loadProducts(tab.value, 1)
+  }
+
   const goStockLog = (id) => {
     router.push({ name: 'stockLog', params: { id } })
   }
 
+  const handlePageChange = async (page) => {
+    await loadProducts(currentStatus.value, page)
+  }
+
   onMounted(async () => {
-    const res = await fetchAllProducts()
-    productValue.value = res
-    isloading.value = false
+    await loadProducts()
     hasLoadedOnce.value = true
   })
 </script>
@@ -66,6 +103,9 @@
         :tabs="inventoryTabs"
         :columns="inventoryColumns"
         :value="productValue"
+        :pagination="pagination"
+        @tab-change="handleTabChange"
+        @page-change="handlePageChange"
         scrollable
         selectable
         scroll-height="500px"

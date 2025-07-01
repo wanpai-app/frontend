@@ -29,12 +29,21 @@
       type: Array,
       required: true,
     },
+    pagination: {
+      type: Object,
+      default: null,
+    },
     scrollable: { type: Boolean, default: true },
     scrollHeight: { type: String, default: '500px' },
     selectable: { type: Boolean, default: true },
   })
 
-  const emit = defineEmits(['tab-change'])
+  const emit = defineEmits(['tab-change', 'page-change'])
+
+  const handlePageChange = (event) => {
+    const page = event.page + 1
+    emit('page-change', page)
+  }
 </script>
 
 <template>
@@ -55,9 +64,12 @@
               data-key="id"
               scrollable
               scroll-height="500px"
-              paginator
-              :rows="20"
-              :rowsPerPageOptions="[5, 10, 20, 50]"
+              :paginator="!!pagination"
+              :rows="pagination?.limit || 20"
+              :totalRecords="pagination?.totalCount || filteredData.length"
+              :first="pagination ? (pagination.currentPage - 1) * pagination.limit : 0"
+              :lazy="!!pagination"
+              @page="handlePageChange"
             >
               <Column
                 selection-mode="multiple"

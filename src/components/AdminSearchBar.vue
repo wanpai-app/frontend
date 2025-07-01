@@ -10,11 +10,12 @@
 
   onMounted(async () => {
     const [productRes, orderRes] = await Promise.all([
-      fetchAllProducts(),
+      fetchAllProducts('all', 1, 1000),
       fetchOrders(),
     ])
 
-    const productItems = productRes.map((product) => ({
+    const products = productRes.data || productRes
+    const productItems = products.map((product) => ({
       id: product.id,
       label: product.name,
       code: product.sku,

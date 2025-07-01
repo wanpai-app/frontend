@@ -1,8 +1,8 @@
 import axios from '@/utils/axiosInstance'
 
-const fetchAllProducts = async (status = 'all') => {
+const fetchAllProducts = async (status = 'all', page = 1, limit = 20) => {
   const res = await axios.get('/admin/products', {
-    params: { status },
+    params: { status, page, limit },
   })
   return res.data
 }
