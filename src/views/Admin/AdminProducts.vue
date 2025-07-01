@@ -19,12 +19,12 @@
   ])
   const productColumns = ref([
     { field: 'coverImage', header: '', style: 'width: 25%', sortable: false },
-    { field: 'name', header: '商品', style: 'width: 25%', sortable: true },
+    { field: 'name', header: '商品', style: 'width: 25%', sortable: false },
     {
       field: 'status',
       header: '狀態',
       style: 'width: 25%',
-      sortable: true,
+      sortable: false,
       format: (val) =>
         ({
           active: '上架中',
@@ -62,6 +62,7 @@
   }
 
   const handleTabChange = async (tab) => {
+    currentStatus.value = tab.value
     await loadProducts(tab.value, 1)
   }
 
@@ -86,6 +87,30 @@
 
   const handlePageChange = async (page) => {
     await loadProducts(currentStatus.value, page)
+  }
+
+  const handleSort = (event) => {
+    const { sortField, sortOrder } = event
+    if (sortField && sortOrder) {
+      productValue.value.sort((a, b) => {
+        let aVal = a[sortField]
+        let bVal = b[sortField]
+
+        // 處理數字類型
+        if (sortField === 'stockOnHand') {
+          aVal = Number(aVal) || 0
+          bVal = Number(bVal) || 0
+        }
+
+        if (sortOrder === 1) {
+          // 升序
+          return aVal > bVal ? 1 : aVal < bVal ? -1 : 0
+        } else {
+          // 降序
+          return aVal < bVal ? 1 : aVal > bVal ? -1 : 0
+        }
+      })
+    }
   }
 
   onMounted(async () => {
@@ -115,8 +140,10 @@
           :columns="productColumns"
           :value="productValue"
           :pagination="pagination"
+          :active-tab="currentStatus"
           @tab-change="handleTabChange"
           @page-change="handlePageChange"
+          @sort="handleSort"
           scrollable
           selectable
           scroll-height="500px"

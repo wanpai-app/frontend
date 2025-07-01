@@ -6,6 +6,13 @@
     :ptOptions="{
       mergeProps: ptViewMerge,
     }"
+    v-bind="$attrs"
+    @sort="(event) => $emit('sort', event)"
+    @page="(event) => $emit('page', event)"
+    @row-click="(event) => $emit('rowClick', event)"
+    @row-select="(event) => $emit('rowSelect', event)"
+    @row-unselect="(event) => $emit('rowUnselect', event)"
+    @select-all-change="(event) => $emit('selectAllChange', event)"
   >
     <template
       #paginatorcontainer="{
@@ -100,8 +107,20 @@
   import SecondaryButton from './SecondaryButton.vue'
   import { ptViewMerge } from './utils'
 
+  defineOptions({
+    inheritAttrs: false,
+  })
+
   interface Props extends /* @vue-ignore */ DataTableProps {}
   defineProps<Props>()
+  defineEmits([
+    'sort',
+    'page',
+    'rowClick',
+    'rowSelect',
+    'rowUnselect',
+    'selectAllChange',
+  ])
 
   const theme = ref<DataTablePassThroughOptions>({
     root: `relative p-flex-scrollable:flex p-flex-scrollable:flex-col p-flex-scrollable:h-full`,
