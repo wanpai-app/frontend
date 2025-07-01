@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, watch } from 'vue'
+  import { ref, computed, watch } from 'vue'
   import { RouterLink, useRoute, useRouter } from 'vue-router'
   import Drawer from 'primevue/drawer'
   import Button from 'primevue/button'
@@ -18,10 +18,15 @@
   const notificationStore = useNotificationStore()
   const searchInput = ref(route.query.keyword || '')
 
-  function handleHomeClick(e) {
-    if (route.path === '/') {
+  const isSplash = computed(() => route.path === '/splash')
+
+  import { nextTick } from 'vue'
+
+  async function handleHomeClick(e) {
+    if (route.query.keyword) {
       e.preventDefault()
-      router.push({ path: '/', query: {} })
+      await router.push({ path: '/products', query: {} })
+      await nextTick()
       searchInput.value = ''
     }
   }
@@ -30,7 +35,7 @@
     if (!searchInput.value.trim()) return
 
     router.push({
-      path: '/',
+      path: '/products',
       query: {
         ...route.query,
         keyword: searchInput.value.trim(),
@@ -126,12 +131,12 @@
 </script>
 
 <template>
-  <header class="bg-white text-black shadow py-2">
+  <header v-if="!isSplash" class="bg-white text-black shadow py-2">
     <div
       class="max-w-screen-xl mx-auto flex items-center justify-between h-12 px-4"
     >
       <RouterLink
-        to="/"
+        :to="{ path: '/products' }"
         class="text-xl font-bold text-emerald-600"
         @click="handleHomeClick"
       >

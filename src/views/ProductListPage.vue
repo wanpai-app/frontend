@@ -7,6 +7,7 @@
   import { RouterLink } from 'vue-router'
   import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
   import BubbleBackground from '@/components/BubbleBackground.vue'
+  import { useRoute } from 'vue-router'
 
   const {
     activeCategory,
@@ -34,7 +35,11 @@
     }
   }
 
+  const route = useRoute()
   onMounted(() => {
+    if (route.query.from === 'checkout') {
+      sessionStorage.setItem('seenSplash', 'true')
+    }
     window.addEventListener('scroll', handleScroll)
   })
 
