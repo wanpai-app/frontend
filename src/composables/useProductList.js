@@ -3,6 +3,20 @@ import axios from '@/utils/axiosInstance'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchFilterData } from '@/api/product'
 
+const globalCache = new Map()
+const cacheExpiry = 10 * 60 * 1000
+
+const cleanupExpiredCache = () => {
+  const now = Date.now()
+  for (const [key, value] of globalCache.entries()) {
+    if (now - value.timestamp > cacheExpiry) {
+      globalCache.delete(key)
+    }
+  }
+}
+
+setInterval(cleanupExpiredCache, cacheExpiry)
+
 export function useProductList() {
   const route = useRoute()
   const router = useRouter()
@@ -19,8 +33,7 @@ export function useProductList() {
     try {
       const res = await axios.get('/products/random?limit=8')
       randomProducts.value = res.data
-    } catch (err) {
-      err
+    } catch {
       randomProducts.value = []
     }
   }
@@ -92,7 +105,7 @@ export function useProductList() {
         isLoading.value = true
         try {
           const res = await axios.get('/products', {
-            params: { limit: 200 }
+            params: { limit: 200 },
           })
           products.value = res.data?.data || res.data || []
         } catch {
@@ -118,22 +131,41 @@ export function useProductList() {
 
   const products = ref([])
 
+  const getCacheKey = (category, page = 1) => `${category}-${page}`
+
   const loadProductsByCategory = async (category, page = 1) => {
+    const cacheKey = getCacheKey(category, page)
+    const cached = globalCache.get(cacheKey)
+
+    if (cached && Date.now() - cached.timestamp < cacheExpiry) {
+      products.value = cached.data
+      hasLoadedOnce.value = true
+      return
+    }
+
     products.value = []
     isLoading.value = true
 
     try {
+      let data = []
       if (category === '全部') {
         const res = await axios.get('/products', {
-          params: { page, limit: 200 }
+          params: { page, limit: 200 },
         })
-        products.value = res.data?.data || res.data || []
+        data = res.data?.data || res.data || []
       } else {
         const res = await axios.get('/tags/filterByTagnames', {
           params: { tagname: category },
         })
-        products.value = res.data.products || []
+        data = res.data.products || []
       }
+
+      products.value = data
+
+      globalCache.set(cacheKey, {
+        data,
+        timestamp: Date.now(),
+      })
     } catch {
       products.value = []
     } finally {
@@ -143,21 +175,37 @@ export function useProductList() {
   }
 
   const loadProductsByIpTag = async (ipTag, page = 1) => {
+    const cacheKey = getCacheKey(`ip-${ipTag}`, page)
+    const cached = globalCache.get(cacheKey)
+
+    if (cached && Date.now() - cached.timestamp < cacheExpiry) {
+      products.value = cached.data
+      hasLoadedOnce.value = true
+      return
+    }
+
     products.value = []
     isLoading.value = true
 
     try {
+      let data = []
       if (ipTag) {
         const res = await axios.get('/tags/filterByTagnames', {
           params: { tagname: ipTag },
         })
-        products.value = res.data.products || []
+        data = res.data.products || []
       } else {
         const res = await axios.get('/products', {
-          params: { page, limit: 200 }
+          params: { page, limit: 200 },
         })
-        products.value = res.data?.data || res.data || []
+        data = res.data?.data || res.data || []
       }
+
+      products.value = data
+      globalCache.set(cacheKey, {
+        data,
+        timestamp: Date.now(),
+      })
     } catch {
       products.value = []
     } finally {

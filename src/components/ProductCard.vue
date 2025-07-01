@@ -6,6 +6,10 @@
 
   const props = defineProps({
     product: Object,
+    index: {
+      type: Number,
+      default: 0,
+    },
   })
 
   async function addToCart(e) {
@@ -44,6 +48,9 @@
       :src="product.coverImage"
       alt="商品圖片"
       class="w-full h-64 object-contain bg-white"
+      :loading="index < 6 ? 'eager' : 'lazy'"
+      :fetchpriority="index < 3 ? 'high' : 'auto'"
+      decoding="async"
     />
     <div class="p-4">
       <p

@@ -94,12 +94,12 @@
             class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 min-w-0"
           >
             <RouterLink
-              v-for="item in paginatedProducts"
+              v-for="(item, index) in paginatedProducts"
               :key="item.id"
               :to="`/products/${item.id}`"
               class="block"
             >
-              <ProductCard :product="item" />
+              <ProductCard :product="item" :index="index" />
             </RouterLink>
           </div>
 

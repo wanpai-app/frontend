@@ -51,7 +51,7 @@
         totalCount: 0,
         limit: 20,
         hasNextPage: false,
-        hasPreviousPage: false
+        hasPreviousPage: false,
       }
       currentStatus.value = status
     } catch {
@@ -72,7 +72,7 @@
     totalCount: 0,
     limit: 20,
     hasNextPage: false,
-    hasPreviousPage: false
+    hasPreviousPage: false,
   })
   const currentStatus = ref('all')
 

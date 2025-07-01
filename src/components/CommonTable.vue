@@ -67,7 +67,9 @@
               :paginator="!!pagination"
               :rows="pagination?.limit || 20"
               :totalRecords="pagination?.totalCount || filteredData.length"
-              :first="pagination ? (pagination.currentPage - 1) * pagination.limit : 0"
+              :first="
+                pagination ? (pagination.currentPage - 1) * pagination.limit : 0
+              "
               :lazy="!!pagination"
               @page="handlePageChange"
             >
