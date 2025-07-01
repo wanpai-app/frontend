@@ -48,7 +48,6 @@
         showToast({
           severity: 'success',
           summary: 'Google 登入成功',
-          detail: `歡迎回來，${payload.username}！`,
         })
 
         authStore.login(token, payload.role || 'user')
