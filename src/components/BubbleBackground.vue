@@ -7,27 +7,54 @@
   onMounted(() => {
     if (isMobile.value) return
 
-    const rows = 5
-    const cols = 6
-    const total = rows * cols
-    const gapY = 100 / rows
-    const gapX = 100 / cols
+    const total = 2
+    const minDistance = 20 // px
+    const maxTries = 300
 
-    bubbles.value = Array.from({ length: total }, (_, i) => {
-      const row = Math.floor(i / cols)
-      const col = i % cols
-      const offsetY = (Math.random() - 0.5) * gapY * 0.8
-      const offsetX = (Math.random() - 0.5) * gapX * 0.8
+    const screenW = window.innerWidth
+    const screenH = window.innerHeight
+    const newBubbles = []
 
-      return {
-        id: i,
-        top: row * gapY + gapY / 2 + offsetY,
-        left: col * gapX + gapX / 2 + offsetX,
-        size: 50 + Math.random() * 30,
-        opacity: 0.4 + Math.random() * 0.3,
-        blur: Math.random() < 0.5 ? 'blur-sm' : '',
+    for (let i = 0; i < total; i++) {
+      let tries = 0
+      let placed = false
+
+      while (tries < maxTries && !placed) {
+        const size = 200 + Math.random() * 30 // 80 ~ 120 px
+        const topPercent = Math.random() * 100
+        const leftPercent = Math.random() * 100
+
+        // 把百分比位置轉成 px 中心點
+        const centerX = (leftPercent / 100) * screenW
+        const centerY = (topPercent / 100) * screenH
+
+        const overlaps = newBubbles.some((b) => {
+          const otherX = (b.left / 100) * screenW
+          const otherY = (b.top / 100) * screenH
+          const dx = centerX - otherX
+          const dy = centerY - otherY
+          const distance = Math.sqrt(dx * dx + dy * dy)
+          const minAllowed = (b.size + size) / 2 + minDistance
+          return distance < minAllowed
+        })
+
+        if (!overlaps) {
+          newBubbles.push({
+            id: i,
+            top: topPercent,
+            left: leftPercent,
+            size,
+            opacity: 0.4 + Math.random() * 0.3,
+            blur: 'blur-sm',
+          })
+          placed = true
+        }
+
+        tries++
       }
-    })
+    }
+
+    bubbles.value = newBubbles
   })
 </script>
 
