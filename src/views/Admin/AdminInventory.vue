@@ -104,6 +104,7 @@
         :columns="inventoryColumns"
         :value="productValue"
         :pagination="pagination"
+        :active-tab="currentStatus"
         @tab-change="handleTabChange"
         @page-change="handlePageChange"
         scrollable

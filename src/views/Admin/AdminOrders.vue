@@ -6,6 +6,7 @@
   import CommonTable from '@/components/CommonTable.vue'
   import { showToast } from '@/utils/toast'
   import BaseLoader from '@/components/BaseLoader.vue'
+  import { sortOrdersByTimestamp } from '@/utils/orderUtils'
   const router = useRouter()
   const isloading = ref(true)
   const hasLoadedOnce = ref(false)
@@ -71,11 +72,11 @@
     },
   ])
   const currentStatus = ref('all')
-  const handleTabChange = async (newStatus) => {
-    currentStatus.value = newStatus
+  const handleTabChange = async (tab) => {
+    currentStatus.value = tab.value
     try {
-      const res = await fetchAllOrders(newStatus)
-      orderValue.value = res
+      const res = await fetchAllOrders(tab.value)
+      orderValue.value = sortOrdersByTimestamp(res)
     } catch {
       showToast({
         severity: 'warn',
@@ -88,7 +89,7 @@
   const orderValue = ref([])
   onMounted(async () => {
     const res = await fetchAllOrders()
-    orderValue.value = res
+    orderValue.value = sortOrdersByTimestamp(res)
     isloading.value = false
     hasLoadedOnce.value = true
   })
@@ -106,6 +107,7 @@
           :tabs="orderTabs"
           :columns="orderColumns"
           :value="orderValue"
+          :active-tab="currentStatus"
           @tab-change="handleTabChange"
           scrollable
           selectable

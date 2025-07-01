@@ -11,6 +11,7 @@
   import { useStatusMap } from '@/composables/useStatusMap'
   import UserSideBar from '@/components/UserSideBar.vue'
   import BaseLoader from '@/components/BaseLoader.vue'
+  import { sortOrdersByTimestamp } from '@/utils/orderUtils'
 
   const isloading = ref(true)
   const hasLoadedOnce = ref(false)
@@ -56,7 +57,9 @@
       }
 
       const data = await fetchOrders(filters)
-      orders.value = data.map((order) => ({
+      const sortedData = sortOrdersByTimestamp(data)
+
+      orders.value = sortedData.map((order) => ({
         ...order,
         statusText: statusMap[order.status],
       }))
