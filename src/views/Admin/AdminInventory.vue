@@ -16,12 +16,12 @@
     { title: '典藏', value: 'archived' },
   ])
   const inventoryColumns = ref([
-    { field: 'coverImage', header: '', style: 'width: 20%', sortable: false },
+    { field: 'coverImage', header: '', style: 'width: 15%', sortable: false },
     { field: 'name', header: '商品', style: 'width: 20%', sortable: true },
     {
       field: 'status',
       header: '狀態',
-      style: 'width: 20%',
+      style: 'width: 15%',
       sortable: true,
       format: (val) =>
         ({
@@ -31,15 +31,35 @@
         })[val] || '未知',
     },
     {
+      field: 'updatedAt',
+      header: '商品更新時間',
+      style: 'width: 20%',
+      sortable: true,
+      format: (val) => {
+        if (!val) return ''
+        const date = new Date(val)
+        if (isNaN(date.getTime())) return '無效日期'
+        return date.toLocaleString('zh-TW', {
+          timeZone: 'Asia/Taipei',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        })
+      },
+    },
+    {
       field: 'stockReserved',
       header: '預留數量',
-      style: 'width: 20%',
+      style: 'width: 15%',
       sortable: true,
     },
     {
       field: 'stockOnHand',
       header: '現有庫存',
-      style: 'width: 20%',
+      style: 'width: 15%',
       sortable: true,
     },
   ])

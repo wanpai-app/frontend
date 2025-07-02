@@ -3,6 +3,17 @@ import axios from '@/utils/axiosInstance'
 import { useRoute, useRouter } from 'vue-router'
 import { fetchFilterData } from '@/api/product'
 
+const productCache = new Map()
+const CACHE_DURATION = 5 * 60 * 1000
+
+function getCacheKey(type, param = '') {
+  return `${type}:${param}`
+}
+
+function isCacheValid(timestamp) {
+  return Date.now() - timestamp < CACHE_DURATION
+}
+
 export function useProductList() {
   const route = useRoute()
   const router = useRouter()
@@ -61,12 +72,46 @@ export function useProductList() {
     },
   })
 
+  const loadRandomProducts = async () => {
+    const cacheKey = getCacheKey('random', '8')
+    const cached = productCache.get(cacheKey)
+
+    if (cached && isCacheValid(cached.timestamp)) {
+      randomProducts.value = cached.data
+      return
+    }
+
+    try {
+      const res = await axios.get('/products/random?limit=8')
+      randomProducts.value = res.data
+      productCache.set(cacheKey, {
+        data: res.data,
+        timestamp: Date.now(),
+      })
+    } catch {
+      randomProducts.value = []
+    }
+  }
+
   const loadFilterData = async () => {
+    const cacheKey = getCacheKey('filterData')
+    const cached = productCache.get(cacheKey)
+
+    if (cached && isCacheValid(cached.timestamp)) {
+      categories.value = cached.data
+      return
+    }
+
     try {
       const { series } = await fetchFilterData()
-      categories.value = Array.isArray(series)
+      const categoryData = Array.isArray(series)
         ? series.map((item) => item.tagname)
         : []
+      categories.value = categoryData
+      productCache.set(cacheKey, {
+        data: categoryData,
+        timestamp: Date.now(),
+      })
     } catch {
       categories.value = []
     }
@@ -77,27 +122,36 @@ export function useProductList() {
     return res.data || []
   }
 
-  const fetchProductsByTag = async (tag) => {
-    const res = await axios.get('/tags/filterByTagnames', {
-      params: { tagname: tag },
-    })
-    return res.data.products || []
-  }
+  const loadProductsByCategory = async (category) => {
+    const cacheKey = getCacheKey('category', category)
+    const cached = productCache.get(cacheKey)
 
-  const loadProducts = async () => {
-    isLoading.value = true
+    if (cached && isCacheValid(cached.timestamp)) {
+      products.value = cached.data
+      hasLoadedOnce.value = true
+      return
+    }
+
     products.value = []
+    isLoading.value = true
 
     try {
-      if (isSearching.value) {
-        products.value = await fetchAllProducts()
-      } else if (activeIpTag.value) {
-        products.value = await fetchProductsByTag(activeIpTag.value)
-      } else if (activeCategory.value && activeCategory.value !== '全部') {
-        products.value = await fetchProductsByTag(activeCategory.value)
+      let productData = []
+      if (category === '全部') {
+        const res = await axios.get('/products')
+        productData = res.data
       } else {
-        products.value = await fetchAllProducts()
+        const res = await axios.get('/tags/filterByTagnames', {
+          params: { tagname: category },
+        })
+        productData = res.data.products || []
       }
+
+      products.value = productData
+      productCache.set(cacheKey, {
+        data: productData,
+        timestamp: Date.now(),
+      })
     } catch {
       products.value = []
     } finally {
@@ -106,12 +160,73 @@ export function useProductList() {
     }
   }
 
-  const loadRandomProducts = async () => {
+  const loadProductsByIpTag = async (ipTag) => {
+    const cacheKey = getCacheKey('ipTag', ipTag)
+    const cached = productCache.get(cacheKey)
+
+    if (cached && isCacheValid(cached.timestamp)) {
+      products.value = cached.data
+      hasLoadedOnce.value = true
+      return
+    }
+
+    products.value = []
+    isLoading.value = true
+
     try {
-      const res = await axios.get('/products/random?limit=8')
-      randomProducts.value = res.data || []
+      let productData = []
+      if (ipTag) {
+        const res = await axios.get('/tags/filterByTagnames', {
+          params: { tagname: ipTag },
+        })
+        productData = res.data.products || []
+      } else {
+        const res = await axios.get('/products')
+        productData = res.data
+      }
+
+      products.value = productData
+      productCache.set(cacheKey, {
+        data: productData,
+        timestamp: Date.now(),
+      })
     } catch {
-      randomProducts.value = []
+      products.value = []
+    } finally {
+      isLoading.value = false
+      hasLoadedOnce.value = true
+    }
+  }
+
+  const loadProducts = async () => {
+    if (isSearching.value) {
+      const cacheKey = getCacheKey('allProducts')
+      const cached = productCache.get(cacheKey)
+
+      if (cached && isCacheValid(cached.timestamp)) {
+        products.value = cached.data
+        return
+      }
+
+      isLoading.value = true
+      try {
+        const productData = await fetchAllProducts()
+        products.value = productData
+        productCache.set(cacheKey, {
+          data: productData,
+          timestamp: Date.now(),
+        })
+      } catch {
+        products.value = []
+      } finally {
+        isLoading.value = false
+      }
+    } else if (activeIpTag.value) {
+      await loadProductsByIpTag(activeIpTag.value)
+    } else if (activeCategory.value && activeCategory.value !== '全部') {
+      await loadProductsByCategory(activeCategory.value)
+    } else {
+      await loadProductsByCategory('全部')
     }
   }
 
@@ -175,6 +290,10 @@ export function useProductList() {
     return buttons
   })
 
+  const clearCache = () => {
+    productCache.clear()
+  }
+
   return {
     keyword,
     isSearching,
@@ -193,5 +312,7 @@ export function useProductList() {
     isLoading,
     hasLoadedOnce,
     randomProducts,
+    loadRandomProducts,
+    clearCache,
   }
 }
