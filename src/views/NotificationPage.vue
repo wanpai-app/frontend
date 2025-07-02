@@ -70,11 +70,11 @@
 </script>
 
 <template>
-  <div class="p-6 font-sans bg-white text-black min-h-screen">
-    <h2 class="text-2xl font-bold mb-6 ml-4 sm:ml-8">我的通知</h2>
-    <div class="flex flex-col md:flex-row gap-6">
-      <aside class="w-full md:w-40 mb-4 md:mb-0">
-        <ul class="list-none p-0 m-0">
+  <div class="min-h-screen p-6 font-sans text-black bg-white">
+    <h2 class="mb-6 ml-4 text-2xl font-bold sm:ml-8">我的通知</h2>
+    <div class="flex flex-col gap-6 md:flex-row">
+      <aside class="w-full mb-4 md:w-40 md:mb-0">
+        <ul class="p-0 m-0 list-none">
           <li
             v-for="(item, index) in categories"
             :key="index"
@@ -95,27 +95,27 @@
         </ul>
       </aside>
 
-      <section class="flex-1 flex items-center justify-center">
-        <div v-if="loading" class="text-center text-gray-500 py-10">
+      <section class="flex items-center justify-center flex-1">
+        <div v-if="loading" class="py-10 text-center text-gray-500">
           載入中...
         </div>
 
-        <div v-else-if="error" class="text-center text-red-500 py-10">
+        <div v-else-if="error" class="py-10 text-center text-red-500">
           {{ error }}
         </div>
 
         <div v-else-if="!selectedCategory" class="text-center">
           <span
-            class="pi pi-inbox text-9xl text-gray-400 mb-6 block mx-auto"
+            class="block mx-auto mb-6 text-gray-400 pi pi-inbox text-9xl"
             aria-hidden="true"
           ></span>
-          <h3 class="text-xl font-semibold mb-2">歡迎來到通知中心</h3>
-          <p class="text-gray-500">請從左邊的列表選擇想查看的通知類型</p>
+          <h3 class="mb-2 text-xl font-semibold">歡迎來到通知中心</h3>
+          <p class="text-gray-500">選擇想查看的通知類型</p>
         </div>
 
         <div v-else class="w-full">
           <div
-            class="flex justify-between items-center text-gray-500 text-sm px-6"
+            class="flex items-center justify-between px-6 text-sm text-gray-500"
           >
             <span>{{ currentLabel }}</span>
             <span>共 {{ filteredNotifications.length }} 條</span>
@@ -124,7 +124,7 @@
 
           <div
             v-if="filteredNotifications.length === 0"
-            class="text-center py-10 text-gray-500"
+            class="py-10 text-center text-gray-500"
           >
             沒有新通知
           </div>
@@ -134,19 +134,19 @@
             v-for="(item, index) in filteredNotifications"
             :key="index"
             @click="toggleExpanded(item)"
-            class="px-6 py-2 cursor-pointer hover:bg-gray-100 rounded transition"
+            class="px-6 py-2 transition rounded cursor-pointer hover:bg-gray-100"
           >
             <p class="text-sm text-gray-600 flex items-center gap-1.5 mb-1.5">
               {{ item.time }}
               <span
                 v-if="!item.read"
-                class="inline-block w-2 h-2 align-middle bg-red-500 rounded-full ml-2"
+                class="inline-block w-2 h-2 ml-2 align-middle bg-red-500 rounded-full"
               ></span>
             </p>
 
             <div v-if="item.expanded">
-              <p class="text-base mb-1">
-                <strong class="text-red-600 font-bold">
+              <p class="mb-1 text-base">
+                <strong class="font-bold text-red-600">
                   {{ item.username }}
                 </strong>
                 {{ item.message }}
