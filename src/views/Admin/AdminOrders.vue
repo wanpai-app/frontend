@@ -1,5 +1,5 @@
 <script setup>
-  import { ref } from 'vue'
+  import { ref, computed } from 'vue'
   import { fetchAllOrders } from '@/api/order'
   import { onMounted } from 'vue'
   import { useRouter } from 'vue-router'
@@ -86,6 +86,15 @@
   }
 
   const orderValue = ref([])
+
+  const sortedOrders = computed(() => {
+    return [...orderValue.value].sort((a, b) => {
+      const dateA = new Date(a.createdAt)
+      const dateB = new Date(b.createdAt)
+      return dateB - dateA
+    })
+  })
+
   onMounted(async () => {
     const res = await fetchAllOrders()
     orderValue.value = res
@@ -105,7 +114,7 @@
         <CommonTable
           :tabs="orderTabs"
           :columns="orderColumns"
-          :value="orderValue"
+          :value="sortedOrders"
           @tab-change="handleTabChange"
           scrollable
           selectable
