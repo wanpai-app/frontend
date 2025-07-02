@@ -80,19 +80,25 @@ VITE_API_BASE_URL=
   - 資料庫
 
 - 張馨云 [GitHub](https://github.com/kirua05)
+
   - Python 爬蟲
   - 單一商品頁面實作
   - 上傳圖片功能
   - AWS S3 雲端資料庫
+
 - 林欣雨 [GitHub](https://github.com/Raelin930)
+
   - 訂單管理頁面實作
   - 訂單 API
   - 網站 Landing Page
+
 - 巫坤郁 [GitHub](https://github.com/kenyykd)
+
   - 串接綠界金流
   - 創建 Supabase 資料庫
   - 商品分類標籤
-  - Gemini AI 串接
+  - Gemini API 串接
+
 - 謝聿涵 [GitHub](https://github.com/hsiehyuhan)
 
   - 購物車頁面
@@ -108,9 +114,11 @@ VITE_API_BASE_URL=
   - ZeaBur 部署專案
 
 - 楊子毅 [GitHub](https://github.com/ziyi1998)
+
   - 登入註冊功能
   - 會員編輯資料功能
   - Google 第三方登入
+
 - 吳禹慧 [GitHub](https://github.com/rosewuuu)
   - 通知頁面實作
   - 收藏功能
