@@ -63,7 +63,6 @@ app.component('Toast', Toast)
 const authStore = useAuthStore()
 authStore.initAuth()
 
-// ✅ 最穩定的 splash 判斷邏輯：只在第一次進站 "/" 時觸發
 router.isReady().then(() => {
   const seenSplash = sessionStorage.getItem('wanpai_seen_splash')
   const currentPath = router.currentRoute.value.path

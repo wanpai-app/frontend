@@ -97,7 +97,7 @@ body {
 }
 @layer utilities {
   .marquee-fast {
-    animation: scrollLoop 10s linear infinite;
+    animation: scrollLoop 25s linear infinite;
   }
   .marquee-slow {
     animation: scrollLoop 20s linear infinite;

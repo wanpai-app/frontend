@@ -100,24 +100,25 @@
 <template>
   <main class="bg-white text-gray-800 overflow-x-hidden">
     <section
-      class="relative bg-white px-6 pt-10 pb-32 -mt-40 md:pt-20 md:-mt-16 md:pb-40 lg:pt-32 lg:pb-60 overflow-hidden"
+      class="relative bg-white px-6 pt-10 pb-22 md:pb-42 lg:pb-50 overflow-hidden"
     >
-      <img
-        src="@/assets/magicpattern-blob-1751124065159.png"
-        alt="背景"
-        class="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] opacity-50 animate-float z-0 mt-20 md:top-1/2 md:w-[1800px] md:opacity-80"
-      />
+      <div class="absolute inset-0 z-0 pointer-events-none">
+        <img
+          src="@/assets/magicpattern-blob-1751124065159.png"
+          alt="背景"
+          class="absolute top-100 md:top-135 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] opacity-50 animate-float md:w-[1800px] md:opacity-80"
+        />
+      </div>
 
       <img
         v-if="showBlocks"
         src="@/assets/hero/BuildingBlocks.png"
         alt="積木屋"
-        class="absolute z-10 pop-in w-[1000px] top-[200px] left-10 md:left-40 2xl:left-[15%] 2xl:w-[1200px]"
+        class="absolute z-10 pop-in w-[1000px] top-[80px] left-10 md:left-40 2xl:left-[15%] 2xl:w-[1200px]"
       />
-
       <div
         v-if="showCar"
-        class="hidden md:block absolute z-10 pop-in w-56 bottom-8 left-[110px] top-[100px] rotate-[-6deg] 2xl:left-[12%] 2xl:w-[280px]"
+        class="hidden md:block absolute z-10 pop-in w-56 bottom-8 left-[110px] top-[60px] rotate-[-6deg] 2xl:left-[12%] 2xl:w-[280px]"
         @animationend="animated.car = true"
       >
         <img
@@ -126,10 +127,9 @@
           alt="賽車"
         />
       </div>
-
       <div
         v-if="showRobot"
-        class="hidden md:block absolute z-10 pop-in top-[15%] right-[70px] w-40 2xl md:right-[10%] md:w-[180px]"
+        class="hidden md:block absolute z-10 pop-in top-[12%] right-[70px] w-40 2xl md:right-[10%] md:w-[180px]"
         @animationend="animated.robot = true"
       >
         <img
@@ -138,10 +138,9 @@
           alt="機器人"
         />
       </div>
-
       <div
         v-if="showDino"
-        class="hidden md:block absolute z-10 pop-in bottom-20 right-[120px] w-[330px] 2xl:right-[10%] 2xl:w-[400px]"
+        class="hidden md:block absolute z-10 pop-in bottom-25 right-[140px] w-[330px] 2xl:right-[10%] 2xl:w-[400px]"
         @animationend="animated.dino = true"
       >
         <img
@@ -152,29 +151,37 @@
       </div>
 
       <div
-        class="relative z-30 text-center space-y-6 max-w-[90%] mt-40 md:mt-0 md:max-w-3xl mx-auto pt-72 md:pt-[360px] pointer-events-auto md:bottom-50"
+        class="relative z-30 text-center space-y-6 max-w-[90%] mt-62 md:mt-0 md:max-w-3xl mx-auto pt-0 md:pt-5"
       >
+        <div class="-mt-68 relative z-30 flex justify-center md:-mt-20">
+          <img
+            src="@/assets/logo.png"
+            alt="玩派 logo"
+            class="h-28 md:h-75 w-auto"
+          />
+        </div>
         <h1
-          class="text-7xl md:text-9xl font-extrabold text-gray-800 leading-tight"
+          class="text-7xl md:text-8xl font-extrabold text-gray-800 leading-tight mt-60 md:-mt-10"
         >
           玩派
         </h1>
-
-        <p class="text-gray-800 text-2xl md:text-4xl font-extrabold md:-mt-8">
+        <p
+          class="text-gray-800 text-2xl md:text-3xl font-extrabold -mt-4 md:-mt-4"
+        >
           尋找屬於你的命定玩具
         </p>
-        <p class="text-lg text-gray-600">陪你打造專屬的收藏宇宙</p>
-        <div class="mt-6 flex justify-center gap-4">
+        <p class="text-xl text-gray-600 mt-0">陪你打造專屬的收藏宇宙</p>
+
+        <div class="mt-6 flex justify-center gap-4 md:pb-42 lg:pb-52">
           <button
             @click="goToProducts"
             class="px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-white font-semibold rounded-full shadow-md transition cursor-pointer"
           >
             開始探索
           </button>
-
           <button
-            class="px-6 py-3 bg-white text-yellow-500 border-2 border-yellow-400 hover:bg-yellow-100 font-semibold rounded-full shadow-md transition cursor-pointer"
             @click="scrollToAbout"
+            class="px-6 py-3 bg-white text-yellow-500 border-2 border-yellow-400 hover:bg-yellow-100 font-semibold rounded-full shadow-md transition cursor-pointer"
           >
             關於玩派
           </button>
@@ -215,36 +222,38 @@
       </div>
     </section>
 
-    <section
-      class="hidden md:block px-6 py-24 relative h-[600px] overflow-hidden mt-5"
-    >
+    <section class="block px-6 py-24 relative h-[600px] overflow-hidden mt-5">
       <img
         src="/src/assets/story-bg.png"
         alt="裝飾背景"
-        class="absolute top-0 left-0 right-0 mx-auto w-[1200px] rounded-[60px] z-0"
+        class="absolute top-0 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-[1200px] rounded-[30px] md:rounded-[60px] z-0"
       />
+
       <div
         class="relative z-10 max-w-7xl mx-auto flex flex-row gap-10 items-center h-full"
       >
-        <div class="w-7/12 space-y-6 text-center">
+        <div
+          id="xiaonan-section"
+          class="w-full md:w-7/12 space-y-6 text-center mx-auto px-4 -mt-80 md:mt-0"
+        >
           <h2
-            class="text-4xl md:text-5xl text-yellow-700 mt-[-60px] font-extrabold"
+            class="text-3xl md:text-5xl text-yellow-700 mt-[-60px] font-extrabold"
           >
             關於玩派
           </h2>
-          <p class="text-xl text-gray-700 leading-relaxed">
+          <p class="text-lg text-gray-700 leading-relaxed">
             我們不是賣玩具給小孩，
             <br />
             而是把玩具的快樂，還給大人。
             <br />
             讓你在探索的路上不再迷路。
           </p>
-          <p class="text-sm text-gray-600 mt-20">
+          <p class="hidden md:block text-sm text-gray-600 mt-20">
             靈感來自一位總是「只是晃晃」卻空手而回的模型控——我們的朋友小南。
           </p>
         </div>
 
-        <div class="w-5/12 pr-4" id="xiaonan-section">
+        <div class="hidden md:block w-5/12 pr-4" id="xiaonan-section">
           <div class="max-w-sm">
             <h3 class="text-2xl font-bold text-gray-800 mb-4" v-show="isInView">
               來自小南的心聲
@@ -277,21 +286,21 @@
       </div>
     </section>
 
-    <section class="overflow-hidden py-4">
-      <div class="whitespace-nowrap flex marquee-fast">
+    <section class="overflow-hidden bg-white py-4">
+      <div class="flex marquee-fast w-max">
         <p
-          class="text-[56px] font-black tracking-widest text-yellow-700 uppercase px-6"
+          class="text-[56px] font-black tracking-widest text-yellow-700 uppercase px-6 min-w-max"
           style="font-family: 'Baloo 2', cursive"
         >
-          TAKARATOMY ✦ MEGAHOUSE ✦ KAIYODO ✦ GOOD SMILE ✦ JXK ✦ BANDAI ✦
-          AOSHIMA青鳥 ✦ PROOF ✦
+          TAKARATOMY ✦ MEGAHOUSE ✦ KAIYODO ✦ GOOD SMILE ✦ JXK ✦ BANDAI ✦ AOSHIMA
+          ✦ PROOF ✦
         </p>
         <p
-          class="text-[56px] font-black tracking-widest text-yellow-700 uppercase px-6"
+          class="text-[56px] font-black tracking-widest text-yellow-700 uppercase px-6 min-w-max"
           style="font-family: 'Baloo 2', cursive"
         >
-          TAKARATOMY ✦ MEGAHOUSE ✦ KAIYODO ✦ GOOD SMILE ✦ JXK ✦ BANDAI ✦
-          AOSHIMA青鳥 ✦ PROOF ✦
+          TAKARATOMY ✦ MEGAHOUSE ✦ KAIYODO ✦ GOOD SMILE ✦ JXK ✦ BANDAI ✦ AOSHIMA
+          ✦ PROOF ✦
         </p>
       </div>
     </section>
