@@ -69,6 +69,8 @@ VITE_API_BASE_URL=
 - Vue 3 + Vite
 - Tailwind CSS
 - PrimeVue
+- 使用 GitHub Actions 自動執行 ESLint 與 Prettier 格式檢查，以確保程式碼一致性
+
 
 ## 團隊成員
 
